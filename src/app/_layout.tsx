@@ -1,14 +1,6 @@
-import "../global.css"
-
-import { Text, View } from "react-native"
-
+import { Stack } from "expo-router";
+import "../global.css";
 
 export default function RootLayout() {
-  return (
-    <View className="flex-1 items-center justify-center bg-white" >
-      <Text className="text-xl font-bold text-blue-500" >
-        Bienvenido a PetHelp
-      </Text>
-    </View>
-  )
+  return <Stack />;
 }

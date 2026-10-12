@@ -1,0 +1,6 @@
+export enum TipoServicio {
+  CONSULTA = "CONSULTA",
+  VACUNACION = "VACUNACION",
+  EMERGENCIA = "EMERGENCIA",
+  GROOMING = "GROOMING",
+}
