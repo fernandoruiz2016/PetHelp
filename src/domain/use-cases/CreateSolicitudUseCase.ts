@@ -18,7 +18,7 @@ export class CreateSolicitudUseCase {
       prioridad: data.prioridad,
       descripcion: data.descripcion,
       estado: data.estado,
-      fechaRegistro: new Date(),
+      fechaRegistro: new Date().toISOString(),
     };
 
     await this.solicitudRepository.create(solicitud);

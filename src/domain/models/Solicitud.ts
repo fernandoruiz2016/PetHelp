@@ -13,5 +13,5 @@ export interface Solicitud {
   prioridad: PrioridadSolicitud;
   descripcion: string;
   estado: EstadoSolicitud;
-  fechaRegistro: Date;
+  fechaRegistro: string;
 }

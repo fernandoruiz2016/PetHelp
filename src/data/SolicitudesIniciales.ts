@@ -11,7 +11,7 @@ export const solicitudesIniciales: Solicitud[] = [
     prioridad: "MEDIA",
     descripcion: "Consulta general para Dante. Cliente de Miraflores.",
     estado: "PENDIENTE",
-    fechaRegistro: new Date("2026-10-12T08:00:00-05:00"),
+    fechaRegistro: "2026-10-12T13:00:00.000Z",
   },
   {
     id: "2",
@@ -23,7 +23,7 @@ export const solicitudesIniciales: Solicitud[] = [
     descripcion:
       "Vacunación programada para Moka. Cliente de Santiago de Surco.",
     estado: "FINALIZADO",
-    fechaRegistro: new Date("2026-10-12T08:20:00-05:00"),
+    fechaRegistro: "2026-10-12T13:20:00.000Z",
   },
   {
     id: "3",
@@ -34,7 +34,7 @@ export const solicitudesIniciales: Solicitud[] = [
     prioridad: "BAJA",
     descripcion: "Baño y corte de pelo para Rocco. Cliente de San Borja.",
     estado: "PENDIENTE",
-    fechaRegistro: new Date("2026-10-12T08:45:00-05:00"),
+    fechaRegistro: "2026-10-12T13:45:00.000Z",
   },
   {
     id: "4",
@@ -46,7 +46,7 @@ export const solicitudesIniciales: Solicitud[] = [
     descripcion:
       "Solicitud de atención por un accidente de Otto. Cliente de Barranco.",
     estado: "EN_ATENCION",
-    fechaRegistro: new Date("2026-10-12T09:00:00-05:00"),
+    fechaRegistro: "2026-10-12T14:00:00.000Z",
   },
   {
     id: "5",
@@ -58,7 +58,7 @@ export const solicitudesIniciales: Solicitud[] = [
     descripcion:
       "Consulta por falta de apetito de Cleo. Cliente de Jesús María.",
     estado: "EN_ATENCION",
-    fechaRegistro: new Date("2026-10-12T09:30:00-05:00"),
+    fechaRegistro: "2026-10-12T14:30:00.000Z",
   },
   {
     id: "6",
@@ -70,7 +70,7 @@ export const solicitudesIniciales: Solicitud[] = [
     descripcion:
       "Revisión del carné y vacunación de Niko. Cliente de Pueblo Libre.",
     estado: "PENDIENTE",
-    fechaRegistro: new Date("2026-10-12T10:00:00-05:00"),
+    fechaRegistro: "2026-10-12T15:00:00.000Z",
   },
   {
     id: "7",
@@ -81,7 +81,7 @@ export const solicitudesIniciales: Solicitud[] = [
     prioridad: "BAJA",
     descripcion: "Baño y corte de uñas para Tango. Cliente de Lince.",
     estado: "FINALIZADO",
-    fechaRegistro: new Date("2026-10-12T10:20:00-05:00"),
+    fechaRegistro: "2026-10-12T15:20:00.000Z",
   },
   {
     id: "8",
@@ -93,7 +93,7 @@ export const solicitudesIniciales: Solicitud[] = [
     descripcion:
       "Consulta por molestias al caminar de Balú. Cliente de San Miguel.",
     estado: "PENDIENTE",
-    fechaRegistro: new Date("2026-10-12T11:00:00-05:00"),
+    fechaRegistro: "2026-10-12T16:00:00.000Z",
   },
   {
     id: "9",
@@ -105,7 +105,7 @@ export const solicitudesIniciales: Solicitud[] = [
     descripcion:
       "Solicitud de atención por dificultad respiratoria de Frida. Cliente de Surquillo.",
     estado: "EN_ATENCION",
-    fechaRegistro: new Date("2026-10-12T11:15:00-05:00"),
+    fechaRegistro: "2026-10-12T16:15:00.000Z",
   },
   {
     id: "10",
@@ -116,6 +116,6 @@ export const solicitudesIniciales: Solicitud[] = [
     prioridad: "MEDIA",
     descripcion: "Vacunación programada para Chester. Cliente de La Molina.",
     estado: "FINALIZADO",
-    fechaRegistro: new Date("2026-10-12T11:40:00-05:00"),
+    fechaRegistro: "2026-10-12T16:40:00.000Z",
   },
 ];
