@@ -1,11 +1,15 @@
-import { Text, View } from "react-native";
+import { router } from 'expo-router';
+import { useEffect } from 'react';
+import { View } from 'react-native';
 
-export default function HomeScreen() {
-  return (
-    <View className="flex-1 items-center justify-center bg-white">
-      <Text className="text-xl font-bold text-blue-500">
-        Bienvenido a PetHelp
-      </Text>
-    </View>
-  );
+export default function IndexRoute() {
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      router.replace('/login');
+    }, 0);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  return <View className="flex-1 bg-slate-100" />;
 }
+
