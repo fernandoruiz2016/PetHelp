@@ -10,6 +10,7 @@ export default function RegistroRoute() {
         nombre, setNombre,
         user, setUser,
         email, setEmail,
+        phone, setPhone,
         password, setPassword,
         confirmar, setConfirmar,
         errors, handleRegistro
@@ -45,7 +46,18 @@ export default function RegistroRoute() {
                             onChangeText={setUser}
                             autoCapitalize="none"
                             autoCorrect={false}
-                            error={errors.nombre}
+                            error={errors.user}
+                        />
+
+                        <CustomTextInput
+                            label="Teléfono"
+                            placeholder="Número de teléfono"
+                            value={phone}
+                            onChangeText={setPhone}
+                            keyboardType="numeric"
+                            autoCapitalize="none"
+                            autoCorrect={false}
+                            error={errors.phone}
                         />
 
                         <CustomTextInput
@@ -55,7 +67,6 @@ export default function RegistroRoute() {
                             onChangeText={setEmail}
                             keyboardType="email-address"
                             autoCapitalize="none"
-                            autoCorrect={false}
                             error={errors.email}
                         />
 
