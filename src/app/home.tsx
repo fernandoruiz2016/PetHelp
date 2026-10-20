@@ -34,17 +34,17 @@ export default function HomeRoute() {
 
                     <HomeWelcome mensaje={mensaje} ></HomeWelcome>
 
-                    <View className="flex-row gap-4 w-full">
+                    <View className="flex-col gap-3 w-full px-6">
                         <HomeModuleCard 
                         title="Ver Solicitudes" 
                         iconName="document-text-outline" 
-                        onPress={() => router.push('/Solicitudes')} 
+                        onPress={() => router.push('/solicitudes')} 
                         ></HomeModuleCard>
                         
                         <HomeModuleCard 
                         title="Realizar una solicitud" 
                         iconName="add-circle-outline" 
-                        onPress={() => router.push('/Solicitudes')} 
+                        onPress={() => router.push('/solicitudes')} 
                         ></HomeModuleCard>
                     </View>
 
