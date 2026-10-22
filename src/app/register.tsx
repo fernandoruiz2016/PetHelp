@@ -19,14 +19,14 @@ export default function RegistroRoute() {
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            className="flex-1 bg-slate-100"
+            className="flex-1 bg-white"
         >
-            <ScrollView contentContainerClassName="flex-grow pb-10">
+            <ScrollView contentContainerClassName="flex-grow">
 
-                <View className="flex-1 px-6 pt-20">
+                <View className="flex-1 px-2 pt-4 pb-12">
 
                     {/* Tarjeta flotante (Card) */}
-                    <View className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-300 elevation-10">
+                    <View className="bg-white rounded-3xl p-8 elevation-10">
 
                         <RegisterHeader />
 
@@ -91,9 +91,9 @@ export default function RegistroRoute() {
                         <PrimaryButton title="Completar Registro" onPress={handleRegistro} />
 
                         <TouchableOpacity className="mt-8 p-2" onPress={() => router.back()}>
-                            <Text className="text-center text-slate-500 text-base">
+                            <Text className="text-center text-dark-text text-base">
                                 ¿Ya estás registrado?{' '}
-                                <Text className="text-indigo-600 font-bold">Inicia Sesión</Text>
+                                <Text className="text-primary-color font-bold">Inicia Sesión</Text>
                             </Text>
                         </TouchableOpacity>
 

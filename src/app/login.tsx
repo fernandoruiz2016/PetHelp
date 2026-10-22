@@ -11,13 +11,12 @@ export default function LoginRoute() {
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            className="flex-1 bg-slate-100"
+            className="flex-1 bg-white"
         >
             <ScrollView contentContainerClassName="flex-grow">
-                <View className="flex-1 px-6 pt-24 pb-12">
+                <View className="flex-1 px-2 pt-4 pb-12">
 
-                    {/* Tarjeta flotante (Card) */}
-                    <View className="bg-white rounded-3xl p-8 shadow-xl shadow-slate-300 elevation-10 mt-10">
+                    <View className="bg-white rounded-3xl p-8 elevation-10 mt-10">
 
                         <LoginHeader/>
 
@@ -48,9 +47,9 @@ export default function LoginRoute() {
                             className="mt-6 p-2"
                             onPress={() => router.push('/register')}
                         >
-                            <Text className="text-center text-slate-500 text-base">
+                            <Text className="text-center text-dark-text text-base">
                                 ¿Aún no tienes cuenta?{' '}
-                                <Text className="text-indigo-600 font-bold">Regístrate aquí</Text>
+                                <Text className="text-primary-color font-bold">Regístrate aquí</Text>
                             </Text>
                         </TouchableOpacity>
 
