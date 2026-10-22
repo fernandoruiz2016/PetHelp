@@ -50,7 +50,7 @@ export const useRegisterForm = () => {
         // esto se cambiará cuando se tenga listo la lógica para usuarios
         Alert.alert(
             '¡Registro completado!',
-            `Bienvenido a la comunidad, ${nombre} 🎉`,
+            `Bienvenido a PetHelp, ${nombre}`,
             [
                 {
                     text: 'Ir al Login',
