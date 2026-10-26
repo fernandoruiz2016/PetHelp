@@ -1,6 +1,6 @@
 # PetHelp
 
-Aplicación móvil en desarrollo para organizar solicitudes de atención veterinaria y citas de mascotas. El proyecto incluye una interfaz para el administrador, una lista de solicitudes de ejemplo y la base de la gestión de solicitudes.
+Aplicación móvil en desarrollo para organizar solicitudes de atención veterinaria y citas de mascotas. El proyecto incluye una interfaz para el administrador, una lista de solicitudes de ejemplo y la base de la gestión de solicitudes. Su estructura se basa en los principios de Clean Architecture, con separación entre dominio, datos y presentación.
 
 > **Estado:** prototipo en desarrollo.
 
@@ -54,7 +54,6 @@ src/
   domain/
     enums/              Tipos de servicio
     models/             Modelo Solicitud y tipos relacionados
-    use-cases/          Casos de uso todavía no integrados
   presentation/
     components/         Componentes de pantallas y elementos compartidos
     context/            Estado de solicitudes y tema visual
