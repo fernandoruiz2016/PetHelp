@@ -4,11 +4,10 @@ import { PrimaryButton } from "@/presentation/components/shared/PrimaryButton";
 import { ScreenLayout } from "@/presentation/components/shared/ScreenLayout";
 import { useTheme } from "@/presentation/context/ThemeContext";
 import { useLoginForm } from "@/presentation/hooks/useLoginForm";
-import { Link, router } from "expo-router";
+import { router } from "expo-router";
 import {
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -74,9 +73,6 @@ export default function LoginRoute() {
                   </Text>
                 </TouchableOpacity>
               </View>
-              <Pressable>
-                <Link href="/solicitudes">Ir a solicitudes</Link>
-              </Pressable>
             </View>
           </View>
         </ScrollView>
