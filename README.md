@@ -1,56 +1,68 @@
-# Welcome to your Expo app 👋
+# PetHelp
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Aplicación móvil en desarrollo para organizar solicitudes de atención veterinaria y citas de mascotas. El proyecto incluye una interfaz para el administrador, una lista de solicitudes de ejemplo y la base de la gestión de solicitudes.
 
-## Get started
+> **Estado:** prototipo en desarrollo.
 
-1. Install dependencies
+## Funcionalidades actuales
 
-   ```bash
-   npm install
-   ```
+| Área                     | Estado actual                                                                                                                |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
+| Inicio de sesión         | Formulario con validaciones básicas y acceso de demostración con credenciales definidas en el código.                        |
+| Registro                 | Formulario con validaciones; muestra una confirmación, pero todavía no almacena usuarios.                                    |
+| Inicio del administrador | Pantalla con tarjetas de resumen y accesos a solicitudes. Las cifras todavía requieren integración con el estado compartido. |
+| Lista de solicitudes     | Muestra tarjetas con mascota, servicio, descripción, fecha y avatar según la especie (`PERRO`, `GATO` u `OTRO`).             |
+| Tema visual              | Paletas clara y oscura mediante `ThemeContext`, NativeWind y fondos degradados.                                              |
+| Gestión de solicitudes   | El contexto y el reducer definen operaciones para crear, actualizar y eliminar; falta completar y conectar el formulario.    |
 
-2. Start the app
+## Tecnologías
 
-   ```bash
-   npx expo start
-   ```
+- **Expo SDK 57** y **React Native 0.86** para la aplicación.
+- **TypeScript** para los modelos y componentes.
+- **Expo Router** para las rutas en `src/app/`.
+- **NativeWind** para estilos y **expo-linear-gradient** para fondos.
+- **Context API** y `useReducer` para el estado de las solicitudes.
 
-In the output, you'll find options to open the app in a
+## Ejecutar el proyecto
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+Necesitas Node.js, npm y un entorno donde abrir la aplicación Expo. Desde la raíz del proyecto:
 
 ```bash
-npm run reset-project
+npm ci
+npm run start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Scripts para iniciar directamente las plataformas:
 
-### Other setup steps
+```bash
+npm run android
+npm run ios
+npm run web
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+El inicio de sesión actual es **solo una simulación local**. Para probar el recorrido disponible, usa el usuario `admin` y la contraseña `123456`.
 
-## Learn more
+## Recorrido y estructura
 
-To learn more about developing your project with Expo, look at the following resources:
+La ruta inicial (`/`) redirige a `/login`. El acceso de demostración abre `/home`, desde donde se puede navegar a `/solicitudes`. El registro está en `/register`.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```text
+assets/                 Imágenes, logos y avatares de mascotas
+src/
+  app/                  Pantallas y navegación con Expo Router
+  data/                 Solicitudes de ejemplo
+  domain/
+    enums/              Tipos de servicio
+    models/             Modelo Solicitud y tipos relacionados
+    use-cases/          Casos de uso todavía no integrados
+  presentation/
+    components/         Componentes de pantallas y elementos compartidos
+    context/            Estado de solicitudes y tema visual
+    hooks/              Lógica de formularios y resumen
+    reducers/           Operaciones sobre la lista de solicitudes
+    theme/              Colores para modo claro y oscuro
+```
 
-## Join the community
+La lista se inicializa con **10 solicitudes de ejemplo** definidas en `src/data/SolicitudesIniciales.ts`. `SolicitudProvider` las carga en memoria y expone `crear`, `actualizar` y `eliminar`. Los cambios se pierden al reiniciar la aplicación.
 
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Este README describe el contenido del archivo compartido y se actualizará conforme avance la implementación.

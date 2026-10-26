@@ -1,53 +1,57 @@
+import { useTheme } from "@/presentation/context/ThemeContext";
 import { View } from "react-native";
 import { HomeSumaryCard } from "./HomeSummaryCard";
 
 interface HomeSummaryProps {
-    totalHoy: number;
-    solicitudesPendientes: number;
-    solicitudesEnAtencion: number;
-    solicitudesFinalizadas: number;
+  totalHoy: number;
+  solicitudesPendientes: number;
+  solicitudesEnAtencion: number;
+  solicitudesFinalizadas: number;
 }
 
-export const HomeSumary = ({ totalHoy, solicitudesPendientes, solicitudesEnAtencion, solicitudesFinalizadas }: HomeSummaryProps) => {
-    return (
-        <View className='w-full flex-col gap-2 mb-8'>
-                        <View className='flex-row gap-2'>
-                            <HomeSumaryCard
-                                title='Solicitudes de hoy'
-                                value={String(totalHoy)}
-                                icon="document-text-outline"
-                                color='#49aeba'
-                                backgroundColor='#edfdff'
-                            />
+export const HomeSumary = ({
+  totalHoy,
+  solicitudesPendientes,
+  solicitudesEnAtencion,
+  solicitudesFinalizadas,
+}: HomeSummaryProps) => {
+  const { theme } = useTheme();
 
-                            <HomeSumaryCard
-                                title='Pendientes'
-                                value={String(solicitudesPendientes)}
-                                icon="calendar"
-                                color='#F43F5E'
-                                backgroundColor='#FFF1F2'
-                            />
-                        </View>
+  return (
+    <View className="mb-8 w-full gap-3">
+      <View className="flex-row gap-3">
+        <HomeSumaryCard
+          title="Solicitudes de hoy"
+          value={String(totalHoy)}
+          icon="document-text-outline"
+          color={theme.primary}
+          backgroundColor={theme.primarySoft}
+        />
+        <HomeSumaryCard
+          title="Pendientes"
+          value={String(solicitudesPendientes)}
+          icon="calendar"
+          color={theme.accent}
+          backgroundColor={theme.accentSoft}
+        />
+      </View>
 
-                        <View className='flex-row gap-2'>
-                            <HomeSumaryCard
-                                title='En Atención'
-                                value={String(solicitudesEnAtencion)}
-                                icon="hourglass"
-                                color='#3B82F6'
-                                backgroundColor='#EFF6FF'
-                            />
-
-                            <HomeSumaryCard
-                                title='Finalizadas'
-                                value={String(solicitudesFinalizadas)}
-                                icon="checkmark"
-                                color='#22C55E'
-                                backgroundColor='#ECFDF5'
-                            />
-                        </View>
-
-                    </View>
-
-    )
-}
+      <View className="flex-row gap-3">
+        <HomeSumaryCard
+          title="En Atención"
+          value={String(solicitudesEnAtencion)}
+          icon="hourglass"
+          color={theme.primary}
+          backgroundColor={theme.form}
+        />
+        <HomeSumaryCard
+          title="Finalizadas"
+          value={String(solicitudesFinalizadas)}
+          icon="checkmark"
+          color={theme.success}
+          backgroundColor={theme.form}
+        />
+      </View>
+    </View>
+  );
+};

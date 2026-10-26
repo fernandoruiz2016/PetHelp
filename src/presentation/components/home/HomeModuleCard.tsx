@@ -1,21 +1,37 @@
+import { useTheme } from "@/presentation/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import { Text, TouchableOpacity } from "react-native";
 
 interface HomeModuleCardProps {
-    title: string;
-    iconName: keyof typeof Ionicons.glyphMap;
-    onPress: () => void;
+  title: string;
+  iconName: keyof typeof Ionicons.glyphMap;
+  onPress: () => void;
 }
 
-export const HomeModuleCard = ({ title, iconName, onPress }: HomeModuleCardProps) => {
-    return (
-        <TouchableOpacity 
-            onPress={onPress}
-            activeOpacity={0.7}
-            className="w-full flex-row bg-white shadow-sm rounded-2xl p-5 items-center border border-primary-color justify-center active:bg-slate-50"
-        >
-            <Ionicons name={iconName} size={28} color="#b68de3" className="ml-4 mr-1" />
-            <Text className="text-dark-text font-bold text-center text-sm flex-1">{title}</Text>
-        </TouchableOpacity>
-    );
+export const HomeModuleCard = ({
+  title,
+  iconName,
+  onPress,
+}: HomeModuleCardProps) => {
+  const { theme } = useTheme();
+
+  return (
+    <TouchableOpacity
+      className="w-full flex-row items-center rounded-2xl border p-5"
+      style={{
+        backgroundColor: theme.form,
+        borderColor: theme.border,
+      }}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
+      <Ionicons name={iconName} size={28} color={theme.primary} />
+      <Text
+        className="ml-3 flex-1 text-sm font-bold"
+        style={{ color: theme.text }}
+      >
+        {title}
+      </Text>
+    </TouchableOpacity>
+  );
 };

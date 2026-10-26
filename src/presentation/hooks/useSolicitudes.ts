@@ -1,29 +1,23 @@
-import { solicitudesIniciales } from "@/data/SolicitudesIniciales";
+import { useSolicitudes as useSolicitudesContext } from "@/presentation/context/SolicitudesContext";
 
 export const useSolicitudes = () => {
-    const hoy = new Date().toDateString();
+  const { solicitudes } = useSolicitudesContext();
+  const hoy = new Date().toDateString();
 
-    const solicitudesHoy = solicitudesIniciales.filter(
-        (solicitud) =>
-            new Date(solicitud.fechaRegistro).toDateString() === hoy
-    );
+  const solicitudesHoy = solicitudes.filter(
+    (solicitud) => new Date(solicitud.fechaRegistro).toDateString() === hoy,
+  );
 
-    const solicitudesPendientes = solicitudesHoy.filter(
-        (solicitud) => solicitud.estado === "PENDIENTE"
-    ).length;
-
-    const solicitudesFinalizadas = solicitudesHoy.filter(
-        (solicitud) => solicitud.estado === "FINALIZADO"
-    ).length;
-
-    const solicitudesEnAtencion = solicitudesHoy.filter(
-        (solicitud) => solicitud.estado === "EN_ATENCION"
-    ).length;
-
-    return {
-        totalHoy: solicitudesHoy.length,
-        solicitudesPendientes,
-        solicitudesFinalizadas,
-        solicitudesEnAtencion,
-    };
+  return {
+    totalHoy: solicitudesHoy.length,
+    solicitudesPendientes: solicitudesHoy.filter(
+      (solicitud) => solicitud.estado === "PENDIENTE",
+    ).length,
+    solicitudesEnAtencion: solicitudesHoy.filter(
+      (solicitud) => solicitud.estado === "EN_ATENCION",
+    ).length,
+    solicitudesFinalizadas: solicitudesHoy.filter(
+      (solicitud) => solicitud.estado === "FINALIZADO",
+    ).length,
+  };
 };

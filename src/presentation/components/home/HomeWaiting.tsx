@@ -1,10 +1,15 @@
-import { ActivityIndicator, Text, View } from "react-native"
+import { useTheme } from "@/presentation/context/ThemeContext";
+import { ActivityIndicator, Text, View } from "react-native";
 
 export const HomeWaiting = () => {
-    return (
-        <View className="flex-1 items-center justify-center">
-            <ActivityIndicator size="large" color="#4F46E5" />
-            <Text className="text-dark-text mt-4 text-lg">Sincronizando datos...</Text>
-        </View>
-    )
-}
+  const { theme } = useTheme();
+
+  return (
+    <View className="min-h-48 items-center justify-center">
+      <ActivityIndicator size="large" color={theme.primary} />
+      <Text className="mt-4 text-lg" style={{ color: theme.textSecondary }}>
+        Sincronizando datos...
+      </Text>
+    </View>
+  );
+};

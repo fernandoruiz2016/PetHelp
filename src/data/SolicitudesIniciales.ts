@@ -1,16 +1,18 @@
 import { TipoServicio } from "@/domain/enums/TipoServicio";
 import { Solicitud } from "../domain/models/Solicitud";
 
-export const solicitudesIniciales: Solicitud[] = [
+const solicitudesIniciales: Solicitud[] = [
   {
     id: "1",
     clienteNombre: "Ana Cárdenas",
     telefono: "900000001",
     mascotaNombre: "Dante",
+    especieMascota: "PERRO",
     tipoServicio: TipoServicio.CONSULTA,
-    prioridad: "MEDIA",
+    prioridad: "NORMAL",
     descripcion: "Consulta general para Dante. Cliente de Miraflores.",
     estado: "PENDIENTE",
+    fechaCita: "2026-10-27T10:00:00-05:00",
     fechaRegistro: "2026-10-12T13:00:00.000Z",
   },
   {
@@ -18,11 +20,13 @@ export const solicitudesIniciales: Solicitud[] = [
     clienteNombre: "Alonso Valdivia",
     telefono: "900000002",
     mascotaNombre: "Moka",
+    especieMascota: "GATO",
     tipoServicio: TipoServicio.VACUNACION,
-    prioridad: "BAJA",
+    prioridad: "NORMAL",
     descripcion:
       "Vacunación programada para Moka. Cliente de Santiago de Surco.",
     estado: "FINALIZADO",
+    fechaCita: "2026-10-27T10:00:00-05:00",
     fechaRegistro: "2026-10-12T13:20:00.000Z",
   },
   {
@@ -30,10 +34,12 @@ export const solicitudesIniciales: Solicitud[] = [
     clienteNombre: "Mariana Quiroz",
     telefono: "900000003",
     mascotaNombre: "Rocco",
+    especieMascota: "PERRO",
     tipoServicio: TipoServicio.GROOMING,
-    prioridad: "BAJA",
+    prioridad: "NORMAL",
     descripcion: "Baño y corte de pelo para Rocco. Cliente de San Borja.",
     estado: "PENDIENTE",
+    fechaCita: "2026-10-27T15:00:00-05:00",
     fechaRegistro: "2026-10-12T13:45:00.000Z",
   },
   {
@@ -41,11 +47,13 @@ export const solicitudesIniciales: Solicitud[] = [
     clienteNombre: "Renato Gálvez",
     telefono: "900000004",
     mascotaNombre: "Otto",
+    especieMascota: "OTRO",
     tipoServicio: TipoServicio.EMERGENCIA,
     prioridad: "URGENTE",
     descripcion:
       "Solicitud de atención por un accidente de Otto. Cliente de Barranco.",
     estado: "EN_ATENCION",
+    fechaCita: "2026-10-23T10:00:00-05:00",
     fechaRegistro: "2026-10-12T14:00:00.000Z",
   },
   {
@@ -53,11 +61,13 @@ export const solicitudesIniciales: Solicitud[] = [
     clienteNombre: "Flavia Bustamante",
     telefono: "900000005",
     mascotaNombre: "Cleo",
+    especieMascota: "PERRO",
     tipoServicio: TipoServicio.CONSULTA,
     prioridad: "ALTA",
     descripcion:
       "Consulta por falta de apetito de Cleo. Cliente de Jesús María.",
     estado: "EN_ATENCION",
+    fechaCita: "2026-10-23T10:30:00-05:00",
     fechaRegistro: "2026-10-12T14:30:00.000Z",
   },
   {
@@ -65,11 +75,13 @@ export const solicitudesIniciales: Solicitud[] = [
     clienteNombre: "Joaquín Paredes",
     telefono: "900000006",
     mascotaNombre: "Niko",
+    especieMascota: "GATO",
     tipoServicio: TipoServicio.VACUNACION,
-    prioridad: "MEDIA",
+    prioridad: "NORMAL",
     descripcion:
       "Revisión del carné y vacunación de Niko. Cliente de Pueblo Libre.",
     estado: "PENDIENTE",
+    fechaCita: "2026-10-29T09:00:00-05:00",
     fechaRegistro: "2026-10-12T15:00:00.000Z",
   },
   {
@@ -77,10 +89,12 @@ export const solicitudesIniciales: Solicitud[] = [
     clienteNombre: "Adriana Ugarte",
     telefono: "900000007",
     mascotaNombre: "Tango",
+    especieMascota: "PERRO",
     tipoServicio: TipoServicio.GROOMING,
-    prioridad: "BAJA",
+    prioridad: "NORMAL",
     descripcion: "Baño y corte de uñas para Tango. Cliente de Lince.",
     estado: "FINALIZADO",
+    fechaCita: "2026-10-17T13:00:00-05:00",
     fechaRegistro: "2026-10-12T15:20:00.000Z",
   },
   {
@@ -88,11 +102,13 @@ export const solicitudesIniciales: Solicitud[] = [
     clienteNombre: "Rodrigo Luján",
     telefono: "900000008",
     mascotaNombre: "Balú",
+    especieMascota: "PERRO",
     tipoServicio: TipoServicio.CONSULTA,
     prioridad: "ALTA",
     descripcion:
       "Consulta por molestias al caminar de Balú. Cliente de San Miguel.",
     estado: "PENDIENTE",
+    fechaCita: "2026-10-30T11:00:00-05:00",
     fechaRegistro: "2026-10-12T16:00:00.000Z",
   },
   {
@@ -100,11 +116,13 @@ export const solicitudesIniciales: Solicitud[] = [
     clienteNombre: "Ximena Alvarado",
     telefono: "900000009",
     mascotaNombre: "Frida",
+    especieMascota: "GATO",
     tipoServicio: TipoServicio.EMERGENCIA,
     prioridad: "URGENTE",
     descripcion:
       "Solicitud de atención por dificultad respiratoria de Frida. Cliente de Surquillo.",
     estado: "EN_ATENCION",
+    fechaCita: "2026-10-23T11:00:00-05:00",
     fechaRegistro: "2026-10-12T16:15:00.000Z",
   },
   {
@@ -112,10 +130,17 @@ export const solicitudesIniciales: Solicitud[] = [
     clienteNombre: "Sebastián Arévalo",
     telefono: "900000010",
     mascotaNombre: "Chester",
+    especieMascota: "PERRO",
     tipoServicio: TipoServicio.VACUNACION,
-    prioridad: "MEDIA",
+    prioridad: "NORMAL",
     descripcion: "Vacunación programada para Chester. Cliente de La Molina.",
     estado: "FINALIZADO",
+    fechaCita: "2026-10-20T16:00:00-05:00",
     fechaRegistro: "2026-10-12T16:40:00.000Z",
   },
 ];
+
+export async function initialData(): Promise<Solicitud[]> {
+  await new Promise<void>((resolve) => setTimeout(resolve, 600));
+  return [...solicitudesIniciales];
+}

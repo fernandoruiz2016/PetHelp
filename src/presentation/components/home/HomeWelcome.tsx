@@ -1,36 +1,44 @@
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+import { useTheme } from "@/presentation/context/ThemeContext";
 import { Image, Text, View } from "react-native";
 
 interface HomeWelcomeProps {
-    mensaje: string;
+  mensaje: string;
 }
 
 export const HomeWelcome = ({ mensaje }: HomeWelcomeProps) => {
-    return (
-        <View className="bg-violet-100 rounded-3xl p-6 items-center w-full mb-8">
-            <View className='flex-row gap-4'>
-                <MaterialCommunityIcons
-                    name="hand-wave"
-                    size={40}
-                    color="#b68de3"
-                />
-                <Text className="text-2xl font-black text-dark-text text-center">
-                    {mensaje}
-                </Text>
-            </View>
+  const { theme } = useTheme();
 
-            <View className='flex-row gap-2 justify-center items-center'>
-                <Text className="text-dark-text text-center mt-3 text-base w-3/5">
-                    En el panel de control puedes acceder ver y crear solicitudes
-                </Text>
-                <Image
-                    source={require('../../../../assets/images/home.png')}
-                    className='w-2/5 h-28'
-                />
-            </View>
+  return (
+    <View
+      className="mb-8 w-full rounded-3xl border p-5"
+      style={{
+        backgroundColor: theme.form,
+        borderColor: theme.border,
+      }}
+    >
+      <View className="flex-row items-center gap-3">
+        <Text
+          className="text-2xl font-extrabold"
+          style={{ color: theme.title }}
+        >
+          {mensaje}
+        </Text>
+      </View>
 
-        </View>
+      <View className="mt-3 flex-row items-center gap-2">
+        <Text
+          className="w-3/5 text-base"
+          style={{ color: theme.textSecondary }}
+        >
+          En el panel de control puedes acceder ver y crear solicitudes
+        </Text>
 
-
-    )
-}
+        <Image
+          source={require("../../../../assets/images/home.png")}
+          className="h-28 w-2/5"
+          resizeMode="contain"
+        />
+      </View>
+    </View>
+  );
+};

@@ -1,56 +1,76 @@
-import { container } from "@/di/container";
-import { Solicitud } from "@/domain/models/Solicitud";
-import { InputData } from "@/domain/use-cases/CreateSolicitudUseCase";
-import { createContext, ReactNode, useEffect, useState } from "react";
+import { initialData } from "@/data/SolicitudesIniciales";
+import { Solicitud, SolicitudFormData } from "@/domain/models/Solicitud";
+import {
+  createContext,
+  PropsWithChildren,
+  useContext,
+  useEffect,
+  useReducer,
+} from "react";
+import { solicitudesReducer } from "../reducers/SolicitudesReducer";
 
-type SolicitudesContextType = {
+interface SolicitudesContextValue {
   solicitudes: Solicitud[];
-  loading: boolean;
-  crear: (data: InputData) => Promise<void>;
-  actualizar: (solicitud: Solicitud) => Promise<void>;
-  eliminar: (id: string) => Promise<void>;
-};
+  crear: (data: SolicitudFormData) => void;
+  actualizar: (id: string, datos: SolicitudFormData) => void;
+  eliminar: (id: string) => void;
+}
 
-export const SolicitudesContext = createContext<SolicitudesContextType>({
-  solicitudes: [],
-  loading: true,
-  crear: async () => {},
-  actualizar: async () => {},
-  eliminar: async () => {},
-});
+const SolicitudesContext = createContext<SolicitudesContextValue | undefined>(
+  undefined,
+);
 
-export const SolicitudesProvider = ({ children }: { children: ReactNode }) => {
-  const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const refrescar = async () => {
-    setSolicitudes(await container.listSolicitudes.list());
-  };
+export function SolicitudProvider({ children }: PropsWithChildren) {
+  const [solicitudes, dispatch] = useReducer(solicitudesReducer, []);
 
   useEffect(() => {
-    refrescar().finally(() => setLoading(false));
+    async function loadInitialData() {
+      const data = await initialData();
+      dispatch({ type: "CARGAR_SOLICITUDES_INICIALES", payload: data });
+    }
+
+    loadInitialData();
   }, []);
 
-  const crear = async (data: InputData) => {
-    await container.createSolicitud.create(data);
-    await refrescar();
+  const crear = (datos: SolicitudFormData) => {
+    const nuevaSolicitud: Solicitud = {
+      ...datos,
+      id: Date.now().toString(),
+      fechaRegistro: new Date().toISOString(),
+      estado: "PENDIENTE",
+      prioridad: "NORMAL",
+    };
+    dispatch({
+      type: "CREAR",
+      payload: nuevaSolicitud,
+    });
   };
-
-  const actualizar = async (solicitud: Solicitud) => {
-    await container.updateSolicitud.update(solicitud);
-    await refrescar();
+  const actualizar = (id: string, datos: SolicitudFormData) => {
+    dispatch({
+      type: "ACTUALIZAR",
+      payload: { id, datos },
+    });
   };
-
-  const eliminar = async (id: string) => {
-    await container.deleteSolicitud.delete(id);
-    await refrescar();
+  const eliminar = (id: string) => {
+    dispatch({
+      type: "ELIMINAR",
+      payload: id,
+    });
   };
 
   return (
     <SolicitudesContext.Provider
-      value={{ solicitudes, loading, crear, actualizar, eliminar }}
+      value={{ solicitudes, crear, actualizar, eliminar }}
     >
       {children}
     </SolicitudesContext.Provider>
   );
-};
+}
+
+export function useSolicitudes() {
+  const context = useContext(SolicitudesContext);
+  if (!context) {
+    throw new Error("Debe utilizarse dentro del provider");
+  }
+  return context;
+}

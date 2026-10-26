@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useState } from "react";
+import { createContext, ReactNode, useContext, useState } from "react";
 import { Appearance } from "react-native";
 import { Colors, Theme } from "../theme/theme";
 
@@ -7,6 +7,7 @@ type ColorScheme = "light" | "dark";
 type ThemeContextType = {
   colorScheme: ColorScheme;
   setColorScheme: (scheme: ColorScheme) => void;
+  toggleTheme: () => void;
   theme: Theme;
 };
 
@@ -20,9 +21,22 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   );
   const theme = Colors[colorScheme];
 
+  const toggleTheme = () =>
+    setColorScheme(colorScheme === "dark" ? "light" : "dark");
+
   return (
-    <ThemeContext.Provider value={{ colorScheme, setColorScheme, theme }}>
+    <ThemeContext.Provider
+      value={{ colorScheme, setColorScheme, toggleTheme, theme }}
+    >
       {children}
     </ThemeContext.Provider>
   );
 };
+
+export function useTheme() {
+  const contexTheme = useContext(ThemeContext);
+
+  if (!contexTheme)
+    throw new Error("useTheme debe usarse dentro de ThemeProvider");
+  return contexTheme;
+}
