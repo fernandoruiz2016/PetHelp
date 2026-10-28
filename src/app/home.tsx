@@ -1,13 +1,13 @@
-import { HomeHeader } from "@/presentation/components/home/HomeHeader";
 import { HomeModuleCard } from "@/presentation/components/home/HomeModuleCard";
 import { HomeSumary } from "@/presentation/components/home/HomeSummary";
 import { HomeWaiting } from "@/presentation/components/home/HomeWaiting";
 import { HomeWelcome } from "@/presentation/components/home/HomeWelcome";
+import { AppHeader } from "@/presentation/components/shared/AppHeader";
 import { ScreenLayout } from "@/presentation/components/shared/ScreenLayout";
 import { useSolicitudes } from "@/presentation/hooks/useSolicitudes";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
-import { ScrollView, View } from "react-native";
+import { KeyboardAvoidingView, Platform, View } from "react-native";
 
 export default function HomeRoute() {
   const [cargando, setCargando] = useState(true);
@@ -30,46 +30,44 @@ export default function HomeRoute() {
   } = useSolicitudes();
 
   return (
-    <ScreenLayout style={{ padding: 0 }}>
-      <ScrollView
-        className="flex-1"
-        contentContainerStyle={{
-          paddingHorizontal: 20,
-          paddingTop: 16,
-          paddingBottom: 32,
-        }}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      className="flex-1 bg-white"
+    >
+      <ScreenLayout
+        style={{ justifyContent: "flex-start", padding: 0 }}
+        areaSegura="sinSuperior"
       >
-        <HomeHeader onPress={() => router.replace("/login")} />
-
         {cargando ? (
-          <HomeWaiting />
+          <HomeWaiting fullScreen />
         ) : (
-          <View className="w-full">
-            <HomeWelcome mensaje={mensaje} />
+          <>
+            <AppHeader nombre="Martín" isHome={true} />
+            <View className="mt-4 p-4">
+              <HomeWelcome mensaje={mensaje} />
 
-            <HomeSumary
-              totalHoy={totalHoy}
-              solicitudesPendientes={solicitudesPendientes}
-              solicitudesEnAtencion={solicitudesEnAtencion}
-              solicitudesFinalizadas={solicitudesFinalizadas}
-            />
-
-            <View className="w-full gap-3">
-              <HomeModuleCard
-                title="Ver Solicitudes"
-                iconName="document-text-outline"
-                onPress={() => router.push("/solicitudes")}
+              <HomeSumary
+                totalHoy={totalHoy}
+                solicitudesPendientes={solicitudesPendientes}
+                solicitudesEnAtencion={solicitudesEnAtencion}
+                solicitudesFinalizadas={solicitudesFinalizadas}
               />
 
-              <HomeModuleCard
-                title="Realizar una solicitud"
-                iconName="add-circle-outline"
-                onPress={() => router.push("/solicitudes")}
-              />
+              <View className="w-full gap-3">
+                <HomeModuleCard
+                  title="Ir a Solicitudes"
+                  iconName="document-text-outline"
+                  onPress={() => router.push("/solicitudes")}
+                />
+              </View>
             </View>
-          </View>
+
+          </>
         )}
-      </ScrollView>
-    </ScreenLayout>
+
+      </ScreenLayout>
+    </KeyboardAvoidingView>
+
+
   );
 }

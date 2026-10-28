@@ -1,11 +1,18 @@
 import { useTheme } from "@/presentation/context/ThemeContext";
 import { ActivityIndicator, Text, View } from "react-native";
 
-export const HomeWaiting = () => {
+interface HomeWaitingProps {
+  fullScreen?: boolean;
+}
+
+export const HomeWaiting = ({ fullScreen }: HomeWaitingProps) => {
   const { theme } = useTheme();
 
   return (
-    <View className="min-h-48 items-center justify-center">
+    <View
+      className="items-center justify-center"
+      style={fullScreen ? { flex: 1 } : { minHeight: 192 }}
+    >
       <ActivityIndicator size="large" color={theme.primary} />
       <Text className="mt-4 text-lg" style={{ color: theme.textSecondary }}>
         Sincronizando datos...

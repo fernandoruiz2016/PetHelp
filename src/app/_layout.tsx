@@ -15,7 +15,7 @@ function AppStack() {
         <Stack.Screen name="login" />
         <Stack.Screen name="register" />
         <Stack.Screen name="home" />
-        <Stack.Screen name="solicitudes" />
+        <Stack.Screen name="solicitudes/index" />
       </Stack>
     </>
   );
@@ -25,13 +25,7 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <SolicitudProvider>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="login" />
-          <Stack.Screen name="register" />
-          <Stack.Screen name="home" />
-          <Stack.Screen name="solicitudes" />
-        </Stack>
+        <AppStack/>
       </SolicitudProvider>
     </ThemeProvider>
   );

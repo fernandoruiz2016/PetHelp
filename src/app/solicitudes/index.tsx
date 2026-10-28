@@ -1,5 +1,5 @@
+import { AppHeader } from "@/presentation/components/shared/AppHeader";
 import { ScreenLayout } from "@/presentation/components/shared/ScreenLayout";
-import { SolicitudesHeader } from "@/presentation/components/solicitudes/SolicitudesHeader";
 import { SolicitudItem } from "@/presentation/components/solicitudes/SolicitudItem";
 import { useSolicitudes } from "@/presentation/context/SolicitudesContext";
 import { useTheme } from "@/presentation/context/ThemeContext";
@@ -22,7 +22,7 @@ export default function SolicitudesRoute() {
         style={{ justifyContent: "center", padding: 0 }}
         areaSegura="sinSuperior"
       >
-        <SolicitudesHeader nombre="Martín" />
+        <AppHeader nombre="Martín" isHome={false} />
         <Text
           className="font-extrabold text-3xl mt-4 m-auto"
           style={{ color: theme.primary }}
