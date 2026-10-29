@@ -1,10 +1,7 @@
 import { useTheme } from "@/presentation/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
-import {
-    Text,
-    View
-} from "react-native";
+import { Text, View } from "react-native";
 import DropDownPicker from 'react-native-dropdown-picker';
 
 interface SelectOption {

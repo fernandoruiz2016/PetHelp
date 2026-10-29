@@ -14,6 +14,7 @@ interface SolicitudesContextValue {
   crear: (data: SolicitudFormData) => void;
   actualizar: (id: string, datos: SolicitudFormData) => void;
   eliminar: (id: string) => void;
+  buscar: (id: string) => Solicitud | undefined;
 }
 
 const SolicitudesContext = createContext<SolicitudesContextValue | undefined>(
@@ -58,9 +59,12 @@ export function SolicitudProvider({ children }: PropsWithChildren) {
     });
   };
 
+  const buscar = (id: string) =>
+    solicitudes.find((solicitud) => solicitud.id === id);
+
   return (
     <SolicitudesContext.Provider
-      value={{ solicitudes, crear, actualizar, eliminar }}
+      value={{ solicitudes, crear, actualizar, eliminar, buscar }}
     >
       {children}
     </SolicitudesContext.Provider>

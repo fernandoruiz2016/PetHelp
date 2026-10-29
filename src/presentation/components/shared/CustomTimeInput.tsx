@@ -21,11 +21,12 @@ export default function CustomTimeInput({
     const fechaBase = value ? new Date(value) : new Date();
 
     const horasOcupadas = useMemo(() => {
-        return citas
+        const ahora = new Date();
+
+        const horasConCita = citas
             .filter((cita) => cita.estado !== "CANCELADA")
             .filter((cita) => {
                 const fecha = new Date(cita.fechaCita);
-
                 return (
                     fecha.getFullYear() === fechaBase.getFullYear() &&
                     fecha.getMonth() === fechaBase.getMonth() &&
@@ -33,7 +34,22 @@ export default function CustomTimeInput({
                 );
             })
             .map((cita) => new Date(cita.fechaCita).getHours());
-    }, [citas, fechaBase.getFullYear(), fechaBase.getMonth(), fechaBase.getDate()]);
+
+        const horasPasadas =
+            fechaBase.toDateString() === ahora.toDateString()
+                ? Array.from(
+                    { length: ahora.getHours() - 7 },
+                    (_, i) => i + 8
+                )
+                : [];
+
+        return [...new Set([...horasConCita, ...horasPasadas])];
+    }, [
+        citas,
+        fechaBase.getFullYear(),
+        fechaBase.getMonth(),
+        fechaBase.getDate(),
+    ]);
 
     const horaSeleccionada = value ? new Date(value).getHours() : -1;
 

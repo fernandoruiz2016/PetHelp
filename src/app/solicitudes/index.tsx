@@ -3,6 +3,7 @@ import { ScreenLayout } from "@/presentation/components/shared/ScreenLayout";
 import { SolicitudItem } from "@/presentation/components/solicitudes/SolicitudItem";
 import { useSolicitudes } from "@/presentation/context/SolicitudesContext";
 import { useTheme } from "@/presentation/context/ThemeContext";
+import { router } from "expo-router";
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -36,8 +37,8 @@ export default function SolicitudesRoute() {
           renderItem={({ item }) => (
             <SolicitudItem
               solicitud={item}
-              onVerDetalles={(id) => {
-                console.log("Solicitud seleccionada:", id);
+              onVerDetalles={() => {
+                router.push({ pathname: '/solicitudes/[id]', params: { id: item.id } })
               }}
             />
           )}
