@@ -35,7 +35,6 @@ export default function SolicitudesRoute() {
                             Nueva Cita
                         </Text>
 
-
                         <SolicitudForm
                             submitLabel="Realizar solicitud"
                             onSubmit={(datos) => {

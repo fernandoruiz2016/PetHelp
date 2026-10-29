@@ -87,14 +87,14 @@ export const CustomSelectInput = ({
                             <Ionicons
                                 name="chevron-down"
                                 size={20}
-                                color={theme.primary}
+                                color={theme.textMuted}
                             />
                         )}
                         ArrowUpIconComponent={() => (
                             <Ionicons
                                 name="chevron-up"
                                 size={20}
-                                color={theme.primary}
+                                color={theme.textMuted}
                             />
                         )}
                         zIndex={open ? 3000 : 1}

@@ -1,81 +1,69 @@
+
 import { TipoServicio } from "@/domain/enums/TipoServicio";
-import { Solicitud, SolicitudFormData } from "@/domain/models/Solicitud";
+import { SolicitudFormData } from "@/domain/models/Solicitud";
 import { useState } from "react";
-import { Alert } from "react-native";
-import { useSolicitudes } from "../context/SolicitudesContext";
 
-export function useSolicitudForm() {
-  const { crear, actualizar } = useSolicitudes();
-  const [clienteNombre, setClienteNombre] = useState("");
-  const [telefono, setTelefono] = useState("");
-  const [mascotaNombre, setMascotaNombre] = useState("");
-  const [tipoServicio, setTipoServicio] = useState<TipoServicio | null>(null);
-  const [descripcion, setDescripcion] = useState("");
-  const [fechaCita, setFechaCita] = useState("");
-  const [editandoId, setEditandoId] = useState<string | null>(null);
+type FormErrors = Partial<Record<keyof SolicitudFormData, string>>;
 
-  const limpiar = () => {
-    setClienteNombre("");
-    setTelefono("");
-    setMascotaNombre("");
-    setTipoServicio(null);
-    setDescripcion("");
-    setFechaCita("");
-    setEditandoId(null);
+const valoresVacios: SolicitudFormData = {
+  clienteNombre: "",
+  telefono: "",
+  mascotaNombre: "",
+  especieMascota: "PERRO",
+  tipoServicio: TipoServicio.CONSULTA,
+  descripcion: "",
+  fechaCita: "",
+};
+
+export function useSolicitudForm(
+  initialValues: SolicitudFormData = valoresVacios
+) {
+  const [form, setForm] = useState<SolicitudFormData>(initialValues);
+  const [errors, setErrors] = useState<FormErrors>({});
+
+  const actualizarCampo = (
+    campo: keyof SolicitudFormData,
+    valor: string
+  ) => {
+    setForm((actual) => ({ ...actual, [campo]: valor }));
+
+    setErrors((actuales) => ({
+      ...actuales,
+      [campo]: undefined,
+    }));
   };
 
-  const guardar = () => {
-    if (
-      !clienteNombre.trim() ||
-      !telefono.trim() ||
-      !mascotaNombre.trim() ||
-      tipoServicio === null ||
-      !descripcion.trim() ||
-      !fechaCita.trim() ||
-      Number.isNaN(Date.parse(fechaCita))
-    ) {
-      Alert.alert("Datos incompletos", "Llena todos los campos");
-      return;
-    }
-    const datos: SolicitudFormData = {
-      clienteNombre: clienteNombre.trim(),
-      telefono: telefono.trim(),
-      mascotaNombre: mascotaNombre.trim(),
-      tipoServicio,
-      descripcion: descripcion.trim(),
-      fechaCita,
-    };
-    if (editandoId) actualizar(editandoId, datos);
-    else crear(datos);
-    limpiar();
+  const validar = () => {
+    const nuevosErrores: FormErrors = {};
+
+    if (form.clienteNombre.trim().length < 3) nuevosErrores.clienteNombre = "Ingresa al menos 3 caracteres";
+    if (!form.telefono.trim()) nuevosErrores.telefono = "El teléfono es obligatorio";
+    if (!form.mascotaNombre.trim()) nuevosErrores.mascotaNombre = "El nombre de la mascota es obligatorio";
+    if (!form.descripcion.trim()) nuevosErrores.descripcion = "La descripción es obligatoria";
+    if (!form.fechaCita.trim()) nuevosErrores.fechaCita = "La fecha es obligatoria";
+
+    setErrors(nuevosErrores);
+
+    return Object.keys(nuevosErrores).length === 0;
   };
 
-  const comenzarEdicion = (solicitud: Solicitud) => {
-    (setClienteNombre(solicitud.clienteNombre),
-      setTelefono(solicitud.telefono),
-      setMascotaNombre(solicitud.mascotaNombre),
-      setTipoServicio(solicitud.tipoServicio),
-      setDescripcion(solicitud.descripcion),
-      setFechaCita(solicitud.fechaCita),
-      setEditandoId(solicitud.id));
-  };
+  const prepararDatos = (): SolicitudFormData | null => {
+  if (!validar()) return null;
 
   return {
-    clienteNombre,
-    setClienteNombre,
-    telefono,
-    setTelefono,
-    mascotaNombre,
-    setMascotaNombre,
-    tipoServicio,
-    setTipoServicio,
-    descripcion,
-    setDescripcion,
-    fechaCita,
-    setFechaCita,
-    editandoId,
-    guardar,
-    limpiar,
-    comenzarEdicion,
+    ...form,
+    clienteNombre: form.clienteNombre.trim(),
+    telefono: form.telefono.trim(),
+    mascotaNombre: form.mascotaNombre.trim(),
+    descripcion: form.descripcion.trim(),
+  };
+};
+
+  return {
+    form,
+    errors,
+    actualizarCampo,
+    validar,
+    prepararDatos,
   };
 }
