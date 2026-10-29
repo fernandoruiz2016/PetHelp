@@ -27,7 +27,7 @@ export default function SolicitudesRoute() {
           className="font-extrabold text-3xl mt-4 m-auto"
           style={{ color: theme.primary }}
         >
-          Gestionar Citas
+          Listado de Citas
         </Text>
         <FlatList
           className="flex-1"

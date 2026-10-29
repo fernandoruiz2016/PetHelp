@@ -4,11 +4,12 @@ import { router } from "expo-router";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 
 interface SolicitudesHeaderProps {
-  nombre: string;
+  nombre?: string;
   isHome: boolean;
+  titulo?: string;
 }
 
-export function AppHeader({ nombre, isHome }: SolicitudesHeaderProps) {
+export function AppHeader({ nombre, isHome, titulo="Gestionar Citas" }: SolicitudesHeaderProps) {
   const { theme } = useTheme();
 
   return (
@@ -68,11 +69,11 @@ export function AppHeader({ nombre, isHome }: SolicitudesHeaderProps) {
             </TouchableOpacity>
 
             <Text
-              className="text-[32px] font-bold"
+              className="text-3xl font-bold"
               style={{ color: theme.onPrimary }}
               numberOfLines={1}
             >
-              Gestionar citas
+              {titulo}
             </Text>
 
             <Image

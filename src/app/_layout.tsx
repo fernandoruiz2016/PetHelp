@@ -16,6 +16,7 @@ function AppStack() {
         <Stack.Screen name="register" />
         <Stack.Screen name="home" />
         <Stack.Screen name="solicitudes/index" />
+        <Stack.Screen name="solicitudes/nuevo" />
       </Stack>
     </>
   );

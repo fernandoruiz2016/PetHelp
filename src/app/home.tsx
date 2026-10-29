@@ -55,9 +55,15 @@ export default function HomeRoute() {
 
               <View className="w-full gap-3">
                 <HomeModuleCard
-                  title="Ir a Solicitudes"
+                  title="Listado de Citas"
                   iconName="document-text-outline"
                   onPress={() => router.push("/solicitudes")}
+                />
+
+                <HomeModuleCard
+                  title="Nueva Cita"
+                  iconName="add-circle-outline"
+                  onPress={() => router.push("/solicitudes/nuevo")}
                 />
               </View>
             </View>
