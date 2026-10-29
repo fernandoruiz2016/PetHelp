@@ -15,8 +15,9 @@ export const PrimaryButton = ({
   const { theme } = useTheme();
   return (
     <TouchableOpacity
-      className={`bg-primary-color rounded-2xl h-14 mt-2 shadow-sm justify-center items-center active:bg-purple-400 ${className}`}
+      className={`rounded-2xl h-14 mt-2 shadow-sm justify-center items-center ${className}`}
       onPress={onPress}
+      activeOpacity={0.8}
       style={{ backgroundColor: theme.primary }}
     >
       <Text className="text-white font-bold text-lg tracking-wide">

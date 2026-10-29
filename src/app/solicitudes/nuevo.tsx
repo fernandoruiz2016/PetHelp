@@ -35,14 +35,20 @@ export default function SolicitudesRoute() {
                             Nueva Cita
                         </Text>
 
-                        <SolicitudForm
-                            submitLabel="Realizar solicitud"
-                            onSubmit={(datos) => {
-                                // El formulario valida; esta pantalla decide guardar y navegar.
-                                crear(datos);
-                                Alert.alert('Registro creado', 'La solicitud se ha guardado');
-                                router.back();
-                            }} />
+                        <View
+                            className="pt-5 pb-5 px-6 py-6 rounded-[30] shadow-lg shadow-black/50 elevation-8"
+                            style={{ backgroundColor: theme.background }}
+                        >
+                            <SolicitudForm
+                                submitLabel="Realizar solicitud"
+                                onSubmit={(datos) => {
+                                    // El formulario valida; esta pantalla decide guardar y navegar.
+                                    crear(datos);
+                                    Alert.alert('Registro creado', 'La solicitud se ha guardado');
+                                    router.back();
+                                }} />
+                        </View>
+
                     </View>
                 </ScrollView>
 

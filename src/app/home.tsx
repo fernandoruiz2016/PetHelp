@@ -53,7 +53,7 @@ export default function HomeRoute() {
                 solicitudesFinalizadas={solicitudesFinalizadas}
               />
 
-              <View className="w-full gap-3">
+              <View className="flex-col items-center justify-center gap-3 px-12">
                 <HomeModuleCard
                   title="Listado de Citas"
                   iconName="document-text-outline"

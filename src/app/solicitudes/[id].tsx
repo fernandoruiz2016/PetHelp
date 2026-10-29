@@ -37,15 +37,21 @@ export default function SolicitudesRoute() {
                             Editar Cita
                         </Text>
 
-                        <SolicitudForm
-                            initialValues={solicitud}
-                            submitLabel="Actualizar"
-                            onSubmit={(datos) => {
-                                // El formulario valida; esta pantalla decide guardar y navegar.
-                                actualizar(id, datos);
-                                Alert.alert('Registro actualizado', 'Los cambios se han guardado');
-                                router.back();
-                            }} />
+                        <View
+                            className="pt-5 pb-5 px-6 py-6 rounded-[30] shadow-lg shadow-black/50 elevation-8"
+                            style={{ backgroundColor: theme.background }}
+                        >
+                            <SolicitudForm
+                                initialValues={solicitud}
+                                submitLabel="Actualizar"
+                                onSubmit={(datos) => {
+                                    // El formulario valida; esta pantalla decide guardar y navegar.
+                                    actualizar(id, datos);
+                                    Alert.alert('Registro actualizado', 'Los cambios se han guardado');
+                                    router.back();
+                                }} />
+                        </View>
+
                     </View>
                 </ScrollView>
 

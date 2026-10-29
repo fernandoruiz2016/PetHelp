@@ -17,7 +17,7 @@ export const HomeModuleCard = ({
 
   return (
     <TouchableOpacity
-      className="w-full flex-row items-center rounded-2xl border p-5"
+      className="w-full flex-row items-center justify-center rounded-2xl border p-5"
       style={{
         backgroundColor: theme.form,
         borderColor: theme.border,
@@ -27,7 +27,7 @@ export const HomeModuleCard = ({
     >
       <Ionicons name={iconName} size={28} color={theme.primary} />
       <Text
-        className="ml-3 flex-1 text-sm font-bold"
+        className="ml-3 text-m font-bold"
         style={{ color: theme.text }}
       >
         {title}
