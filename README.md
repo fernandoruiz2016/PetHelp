@@ -1,6 +1,6 @@
 # PetHelp
 
-Aplicación móvil para organizar las solicitudes de atención de una clínica veterinaria. Permite registrar citas, consultar su información y gestionar su estado.
+Aplicación móvil para organizar las solicitudes de atención de una clínica veterinaria. Permite registrar citas, consultar su información y gestionar su estado. Su estructura se basa en los principios de Clean Architecture, con separación entre dominio, datos y presentación.
 
 Está desarrollado con Expo y React Native. Las solicitudes se gestionan en memoria, sin servidor ni base de datos.
 
