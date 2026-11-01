@@ -10,13 +10,13 @@ export const HomeWelcome = ({ mensaje }: HomeWelcomeProps) => {
 
   return (
     <View
-      className="mb-8 w-full rounded-3xl border p-5 pb-0 flex-row"
+      className="w-full flex-row items-center rounded-3xl border px-5 pt-4 shadow-lg shadow-black/50 elevation-8"
       style={{
         backgroundColor: theme.form,
         borderColor: theme.border,
       }}
     >
-      <View className="flex-col items-start gap-3 w-3/5 ">
+      <View className="w-3/5 items-start gap-2 pb-3">
         <Text
           className="text-2xl font-extrabold"
           style={{ color: theme.title }}
@@ -24,20 +24,15 @@ export const HomeWelcome = ({ mensaje }: HomeWelcomeProps) => {
           {mensaje}
         </Text>
 
-        <Text
-          className="text-base"
-          style={{ color: theme.textSecondary }}
-        >
-          En el panel de control puedes ver y crear citas
+        <Text className="text-base" style={{ color: theme.textSecondary }}>
+          Aquí podrás administrar las citas
         </Text>
       </View>
 
-      <View className="mt-0 flex-row items-center gap-2 w-2/5">
-        
-
+      <View className="w-2/5 flex-row self-end">
         <Image
           source={require("../../../../assets/images/home.png")}
-          className="h-32 flex-1"
+          className="h-24 flex-1"
           resizeMode="contain"
         />
       </View>

@@ -1,7 +1,7 @@
 import { useTheme } from "@/presentation/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import type { ComponentProps } from "react";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 interface HomeSummaryCardProps {
   title: string;
@@ -9,6 +9,7 @@ interface HomeSummaryCardProps {
   icon: ComponentProps<typeof Ionicons>["name"];
   color: string;
   backgroundColor: string;
+  onPress: () => void;
 }
 
 export const HomeSumaryCard = ({
@@ -17,36 +18,40 @@ export const HomeSumaryCard = ({
   icon,
   color,
   backgroundColor,
+  onPress,
 }: HomeSummaryCardProps) => {
   const { theme } = useTheme();
 
   return (
-    <View
-      className="flex-1 items-center justify-center gap-1 rounded-2xl border px-3 py-4"
-      style={{
-        backgroundColor,
-        borderColor: theme.border,
-      }}
+    <Pressable
+      className="flex-1"
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${title}: ${value}`}
     >
       <View
-        className="mb-2 h-12 w-12 items-center justify-center rounded-full"
-        style={{ backgroundColor: color }}
+        className="flex-1 flex-row items-center gap-2 rounded-2xl border px-3 py-4"
+        style={{ backgroundColor, borderColor: theme.border }}
       >
-        <Ionicons name={icon} size={26} color={theme.onPrimary} />
+        <View
+          className="h-10 w-10 items-center justify-center rounded-full"
+          style={{ backgroundColor: color }}
+        >
+          <Ionicons name={icon} size={22} color={theme.onPrimary} />
+        </View>
+        <View className="min-w-0 flex-1">
+          <Text className="text-2xl font-bold" style={{ color: theme.text }}>
+            {value}
+          </Text>
+          <Text
+            className="text-sm"
+            style={{ color: theme.textSecondary }}
+            numberOfLines={2}
+          >
+            {title}
+          </Text>
+        </View>
       </View>
-
-      <Text
-        className="text-center text-3xl font-bold"
-        style={{ color: theme.text }}
-      >
-        {value}
-      </Text>
-      <Text
-        className="text-center text-sm"
-        style={{ color: theme.textSecondary }}
-      >
-        {title}
-      </Text>
-    </View>
+    </Pressable>
   );
 };

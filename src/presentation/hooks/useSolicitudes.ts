@@ -5,7 +5,7 @@ export const useSolicitudes = () => {
   const hoy = new Date().toDateString();
 
   const solicitudesHoy = solicitudes.filter(
-    (solicitud) => new Date(solicitud.fechaRegistro).toDateString() === hoy,
+    (solicitud) => new Date(solicitud.fechaCita).toDateString() === hoy,
   );
 
   return {

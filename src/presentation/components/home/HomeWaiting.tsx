@@ -15,7 +15,7 @@ export const HomeWaiting = ({ fullScreen }: HomeWaitingProps) => {
     >
       <ActivityIndicator size="large" color={theme.primary} />
       <Text className="mt-4 text-lg" style={{ color: theme.textSecondary }}>
-        Sincronizando datos...
+        Cargando...
       </Text>
     </View>
   );

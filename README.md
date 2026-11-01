@@ -1,67 +1,98 @@
 # PetHelp
 
-Aplicación móvil en desarrollo para organizar solicitudes de atención veterinaria y citas de mascotas. El proyecto incluye una interfaz para el administrador, una lista de solicitudes de ejemplo y la base de la gestión de solicitudes. Su estructura se basa en los principios de Clean Architecture, con separación entre dominio, datos y presentación.
+Aplicación móvil para organizar las solicitudes de atención de una clínica veterinaria. Permite registrar citas, consultar su información y gestionar su estado.
 
-> **Estado:** prototipo en desarrollo.
+Está desarrollado con Expo y React Native. Las solicitudes se gestionan en memoria, sin servidor ni base de datos.
 
-## Funcionalidades actuales
+## Funcionalidades
 
-| Área                     | Estado actual                                                                                                                |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| Inicio de sesión         | Formulario con validaciones básicas y acceso de demostración con credenciales definidas en el código.                        |
-| Registro                 | Formulario con validaciones; muestra una confirmación, pero todavía no almacena usuarios.                                    |
-| Inicio del administrador | Pantalla con tarjetas de resumen y accesos a solicitudes. Las cifras todavía requieren integración con el estado compartido. |
-| Lista de solicitudes     | Muestra tarjetas con mascota, servicio, descripción, fecha y avatar según la especie (`PERRO`, `GATO` u `OTRO`).             |
-| Tema visual              | Paletas clara y oscura mediante `ThemeContext`, NativeWind y fondos degradados.                                              |
-| Gestión de solicitudes   | El contexto y el reducer definen operaciones para crear, actualizar y eliminar; falta completar y conectar el formulario.    |
+- Inicio de sesión de demostración y formulario de registro con validaciones.
+- Inicio con el resumen de las citas del día y accesos al listado y a una nueva cita.
+- Listado con búsqueda por mascota, cliente o código, y filtros por fecha, estado, servicio y prioridad.
+- Creación de citas con datos del cliente y la mascota, servicio, descripción, prioridad, fecha y hora. La prioridad inicial es **Normal** y el estado inicial es **Pendiente**.
+- Vista de detalle, edición de los datos y del estado, y eliminación con confirmación.
+- Tema claro y oscuro: toma el aspecto del sistema al abrir la app y permite cambiarlo desde el **menú de la foto de perfil** en Inicio.
 
 ## Tecnologías
 
-- **Expo SDK 57** y **React Native 0.86** para la aplicación.
-- **TypeScript** para los modelos y componentes.
-- **Expo Router** para las rutas en `src/app/`.
-- **NativeWind** para estilos y **expo-linear-gradient** para fondos.
-- **Context API** y `useReducer` para el estado de las solicitudes.
+- Expo SDK 57, React Native 0.86 y TypeScript.
+- Expo Router para la navegación.
+- NativeWind y `expo-linear-gradient` para los estilos.
+- Context API y `useReducer` para el CRUD en memoria.
 
-## Ejecutar el proyecto
+## Requisitos
 
-Necesitas Node.js, npm y un entorno donde abrir la aplicación Expo. Desde la raíz del proyecto:
+- Node.js y npm.
+- Para Android: un dispositivo compatible con Expo Go o un emulador configurado en Android Studio. Para compilar localmente, también se necesitan el SDK de Android y Java/JDK.
+- Para iOS: un dispositivo compatible con Expo Go o, en macOS, un simulador configurado con Xcode. Xcode es necesario para compilar localmente.
 
-```bash
-npm ci
-npm run start
-```
+## Instalación
 
-Scripts para iniciar directamente las plataformas:
+Clona el repositorio e instala las dependencias:
 
 ```bash
-npm run android
-npm run ios
-npm run web
+git clone https://github.com/fernandoruiz2016/PetHelp.git
+cd PetHelp
+npm install
 ```
 
-El inicio de sesión actual es **solo una simulación local**. Para probar el recorrido disponible, usa el usuario `admin` y la contraseña `123456`.
+También puedes usar `npm ci` para instalar exactamente las versiones registradas en `package-lock.json`.
 
-## Recorrido y estructura
+## Ejecución
 
-La ruta inicial (`/`) redirige a `/login`. El acceso de demostración abre `/home`, desde donde se puede navegar a `/solicitudes`. El registro está en `/register`.
+Para probar la app con Expo Go, inicia el servidor de desarrollo:
+
+```bash
+npx expo start
+```
+
+Abre la app con el código QR en un dispositivo o presiona `a` para Android y `i` para el simulador de iOS. También puedes iniciar directamente un destino con `npm run android` o `npm run ios` (`ios` requiere macOS). El proyecto incluye `npm run web`, aunque el flujo principal está pensado para móvil.
+
+Para compilar y ejecutar la aplicación localmente con Expo, utiliza el comando correspondiente a tu plataforma:
+
+```bash
+npx expo run:android
+npx expo run:ios
+```
+
+Ejecuta solo el comando de la plataforma que vas a probar. `run:android` requiere Android Studio y Java/JDK; `run:ios` requiere macOS y Xcode. Para el flujo habitual con Expo Go basta con `npx expo start`.
+
+En PowerShell, si la política de ejecución bloquea los comandos `npm` o `npx`, utiliza `npm.cmd` y `npx.cmd` con los mismos argumentos.
+
+## Cómo probar el flujo CRUD
+
+El acceso es de demostración:
+
+| Campo      | Valor    |
+| ---------- | -------- |
+| Usuario    | `admin`  |
+| Contraseña | `123456` |
+
+1. Inicia sesión y abre **Todas las citas** desde Inicio o desde la barra inferior.
+2. Usa la búsqueda y los filtros para localizar una cita. Toca una tarjeta para ver su detalle.
+3. Pulsa **Nueva cita**, completa el formulario, elige fecha y hora disponibles y guarda. Si no cambias la prioridad, se guarda como **Normal**.
+4. Abre la cita creada y pulsa **Editar cita**. Cambia, por ejemplo, la prioridad, la descripción o el estado a **En atención** o **Finalizado**, y guarda.
+5. Vuelve al listado para comprobar el cambio. Para probar la eliminación, abre el detalle, pulsa **Eliminar cita** y confirma la acción.
+
+El formulario muestra los errores bajo los campos correspondientes. Las horas ocupadas para la fecha elegida aparecen desactivadas; al editar, la hora de esa cita permanece seleccionada.
+
+## Organización del proyecto
 
 ```text
-assets/                 Imágenes, logos y avatares de mascotas
+assets/                         Imágenes, logos e iconos
 src/
-  app/                  Pantallas y navegación con Expo Router
-  data/                 Solicitudes de ejemplo
+  app/                          Pantallas y rutas de Expo Router
+  data/                         Solicitudes iniciales de demostración
   domain/
-    enums/              Tipos de servicio
-    models/             Modelo Solicitud y tipos relacionados
+    enums/                      Tipos de servicio
+    models/                     Modelo y tipos de Solicitud
+    services/                   Generación de códigos de cita
   presentation/
-    components/         Componentes de pantallas y elementos compartidos
-    context/            Estado de solicitudes y tema visual
-    hooks/              Lógica de formularios y resumen
-    reducers/           Operaciones sobre la lista de solicitudes
-    theme/              Colores para modo claro y oscuro
+    components/                 Componentes de interfaz reutilizables
+    context/                    Estado global de solicitudes y tema
+    hooks/                      Lógica de formularios y vistas
+    reducers/                   Acciones CRUD de solicitudes
+    theme/                      Paletas clara y oscura
 ```
 
-La lista se inicializa con **10 solicitudes de ejemplo** definidas en `src/data/SolicitudesIniciales.ts`. `SolicitudProvider` las carga en memoria y expone `crear`, `actualizar` y `eliminar`. Los cambios se pierden al reiniciar la aplicación.
-
-Este README describe el contenido del archivo compartido y se actualizará conforme avance la implementación.
+La lista se inicializa con **20 solicitudes de ejemplo** definidas en `src/data/SolicitudesIniciales.ts`. `SolicitudProvider` las carga en memoria y comparte las operaciones de crear, actualizar, buscar y eliminar. El reducer aplica los cambios a la lista en memoria; las pantallas consumen ese contexto. Los cambios se pierden al reiniciar la aplicación.

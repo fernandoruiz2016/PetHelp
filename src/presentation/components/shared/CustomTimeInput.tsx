@@ -4,122 +4,144 @@ import { useMemo } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 interface CustomTimeInputProps {
-    value: string;
-    onChange: (fecha: string) => void;
-    citas: Solicitud[];
+  value: string;
+  onChange: (fecha: string) => void;
+  horaSeleccionada: boolean;
+  citas: Solicitud[];
+  excluirSolicitudId?: string;
+  error?: string;
 }
 
 const HORAS = Array.from({ length: 10 }, (_, i) => i + 8);
 
 export default function CustomTimeInput({
-    value,
-    onChange,
-    citas,
+  value,
+  onChange,
+  horaSeleccionada,
+  citas,
+  excluirSolicitudId,
+  error,
 }: CustomTimeInputProps) {
-    const { theme } = useTheme();
+  const { theme } = useTheme();
 
-    const fechaBase = value ? new Date(value) : new Date();
+  const fechaBase = value ? new Date(value) : new Date();
 
-    const horasOcupadas = useMemo(() => {
-        const ahora = new Date();
+  const horasOcupadas = useMemo(() => {
+    if (!value) return [];
 
-        const horasConCita = citas
-            .filter((cita) => cita.estado !== "CANCELADA")
-            .filter((cita) => {
-                const fecha = new Date(cita.fechaCita);
-                return (
-                    fecha.getFullYear() === fechaBase.getFullYear() &&
-                    fecha.getMonth() === fechaBase.getMonth() &&
-                    fecha.getDate() === fechaBase.getDate()
-                );
-            })
-            .map((cita) => new Date(cita.fechaCita).getHours());
+    const ahora = new Date();
 
-        const horasPasadas =
-            fechaBase.toDateString() === ahora.toDateString()
-                ? Array.from(
-                    { length: ahora.getHours() - 7 },
-                    (_, i) => i + 8
-                )
-                : [];
+    const horasConCita = citas
+      .filter(
+        (cita) => cita.estado !== "CANCELADA" && cita.id !== excluirSolicitudId,
+      )
+      .filter((cita) => {
+        const fecha = new Date(cita.fechaCita);
+        return (
+          fecha.getFullYear() === fechaBase.getFullYear() &&
+          fecha.getMonth() === fechaBase.getMonth() &&
+          fecha.getDate() === fechaBase.getDate()
+        );
+      })
+      .map((cita) => new Date(cita.fechaCita).getHours());
 
-        return [...new Set([...horasConCita, ...horasPasadas])];
-    }, [
-        citas,
-        fechaBase.getFullYear(),
-        fechaBase.getMonth(),
-        fechaBase.getDate(),
-    ]);
+    const horasPasadas =
+      fechaBase.toDateString() === ahora.toDateString()
+        ? Array.from({ length: ahora.getHours() - 7 }, (_, i) => i + 8)
+        : [];
 
-    const horaSeleccionada = value ? new Date(value).getHours() : -1;
+    return [...new Set([...horasConCita, ...horasPasadas])];
+  }, [
+    citas,
+    excluirSolicitudId,
+    value,
+    fechaBase.getFullYear(),
+    fechaBase.getMonth(),
+    fechaBase.getDate(),
+  ]);
 
-    const seleccionarHora = (hora: number) => {
-        const nuevaFecha = new Date(fechaBase);
-        nuevaFecha.setHours(hora, 0, 0, 0);
-        onChange(nuevaFecha.toISOString());
-    };
+  const horaActualSeleccionada =
+    horaSeleccionada && value ? new Date(value).getHours() : -1;
 
-    return (
-        <View className="mb-4">
-            <Text
-                className="font-semibold mb-2 ml-1"
-                style={{ color: theme.text }}
-            >
-                Hora de la cita
-            </Text>
+  const seleccionarHora = (hora: number) => {
+    const nuevaFecha = new Date(fechaBase);
+    nuevaFecha.setHours(hora, 0, 0, 0);
+    onChange(nuevaFecha.toISOString());
+  };
 
-            <View className="flex-row flex-wrap gap-2">
-                {HORAS.map((hora) => {
-                    const ocupada = horasOcupadas.includes(hora);
-                    const seleccionada = horaSeleccionada === hora;
+  return (
+    <View className="mb-4">
+      <Text className="font-semibold mb-2 ml-1" style={{ color: theme.text }}>
+        Hora de la cita
+      </Text>
 
-                    const etiqueta = new Date(
-                        2000, 0, 1, hora
-                    ).toLocaleTimeString("es-PE", {
-                        hour: "numeric",
-                        minute: "2-digit",
-                        hour12: true,
-                    });
+      {!value ? (
+        <Text className="ml-1 text-sm" style={{ color: theme.textMuted }}>
+          Selecciona una fecha para ver los horarios disponibles.
+        </Text>
+      ) : (
+        <View className="flex-row flex-wrap gap-2">
+          {HORAS.map((hora) => {
+            const seleccionada = horaActualSeleccionada === hora;
+            const ocupada = !seleccionada && horasOcupadas.includes(hora);
 
-                    return (
-                        <TouchableOpacity
-                            key={hora}
-                            disabled={ocupada}
-                            onPress={() => seleccionarHora(hora)}
-                            activeOpacity={0.7}
-                            className="items-center justify-center rounded-xl border-2 px-3 py-3"
-                            style={{
-                                width: "31%",
-                                borderColor: ocupada
-                                    ? theme.inputBorder
-                                    : seleccionada
-                                        ? theme.primary
-                                        : theme.inputBorder,
-                                backgroundColor: ocupada
-                                    ? theme.background
-                                    : seleccionada
-                                        ? theme.primary
-                                        : theme.input,
-                                opacity: ocupada ? 0.5 : 1,
-                            }}
-                        >
-                            <Text
-                                className="font-semibold text-sm"
-                                style={{
-                                    color: ocupada
-                                        ? theme.textMuted
-                                        : seleccionada
-                                            ? theme.onPrimary
-                                            : theme.text,
-                                }}
-                            >
-                                {etiqueta}
-                            </Text>
+            const etiqueta = new Date(2000, 0, 1, hora).toLocaleTimeString(
+              "es-PE",
+              {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+              },
+            );
 
-                        </TouchableOpacity>
-                    );
-                })}
-            </View>
+            return (
+              <TouchableOpacity
+                key={hora}
+                disabled={ocupada}
+                accessibilityState={{ selected: seleccionada, disabled: ocupada }}
+                onPress={() => seleccionarHora(hora)}
+                activeOpacity={0.7}
+                className="items-center justify-center rounded-xl border-2 px-3 py-3"
+                style={{
+                  width: "31%",
+                  borderColor: ocupada
+                    ? theme.inputBorder
+                    : seleccionada
+                      ? theme.primary
+                      : theme.inputBorder,
+                  backgroundColor: ocupada
+                    ? theme.background
+                    : seleccionada
+                      ? theme.primary
+                      : theme.input,
+                  opacity: ocupada ? 0.5 : 1,
+                }}
+              >
+                <Text
+                  className={seleccionada ? "font-semibold text-sm" : "text-sm"}
+                  style={{
+                    color: ocupada
+                      ? theme.textMuted
+                      : seleccionada
+                        ? theme.onPrimary
+                        : theme.text,
+                  }}
+                >
+                  {etiqueta}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
-    );
+      )}
+      {error && (
+        <Text
+          className="text-sm mt-2 ml-2 font-medium"
+          style={{ color: theme.error }}
+        >
+          {error}
+        </Text>
+      )}
+    </View>
+  );
 }

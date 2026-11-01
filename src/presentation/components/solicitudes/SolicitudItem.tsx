@@ -1,108 +1,128 @@
-import { EspecieMascota, Solicitud } from "@/domain/models/Solicitud";
+import type { Solicitud } from "@/domain/models/Solicitud";
+import { MascotaAvatar } from "@/presentation/components/shared/MascotaAvatar";
+import { ServicioLabel } from "@/presentation/components/shared/ServicioLabel";
+import {
+  EstadoChip,
+  PrioridadChip,
+} from "@/presentation/components/shared/SolicitudChips";
 import { useTheme } from "@/presentation/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  Image,
-  ImageSourcePropType,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Pressable, Text, View } from "react-native";
+
 interface SolicitudItemProps {
   solicitud: Solicitud;
   onVerDetalles: (id: string) => void;
 }
-const avatares: Record<EspecieMascota, ImageSourcePropType> = {
-  PERRO: require("../../../../assets/images/mascotas/perro.png"),
-  GATO: require("../../../../assets/images/mascotas/gato.png"),
-  OTRO: require("../../../../assets/images/mascotas/otro.png"),
-};
+
 export function SolicitudItem({
   solicitud,
   onVerDetalles,
 }: SolicitudItemProps) {
   const { theme } = useTheme();
-
-  const [anio, mes, dia] = solicitud.fechaCita
-    .slice(0, 10)
-    .split("-")
-    .map(Number);
-
-  const fecha = new Intl.DateTimeFormat("es", {
-    dateStyle: "full",
-  }).format(new Date(anio, mes - 1, dia));
+  const fechaCita = new Date(solicitud.fechaCita);
+  const fecha = new Intl.DateTimeFormat("es-PE", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  }).format(fechaCita);
+  const hora = new Intl.DateTimeFormat("es-PE", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(fechaCita);
 
   return (
-    <View
-      className="flex-row items-center rounded-3xl border p-4 shadow-lg shadow-black/50 elevation-8 "
-      style={{
-        backgroundColor: theme.form,
-        borderColor: theme.border,
-      }}
+    <Pressable
+      onPress={() => onVerDetalles(solicitud.id)}
+      accessibilityRole="button"
+      accessibilityLabel={`Ver detalles de la cita con código ${solicitud.codigo}, ${solicitud.mascotaNombre}`}
     >
-      <Image
-        source={avatares[solicitud.especieMascota]}
-        className="h-12 w-12 rounded-full border-2"
-        style={{ borderColor: theme.accent }}
-      />
+      <View
+        className="flex-row items-center rounded-3xl border p-4 shadow-lg shadow-black/50 elevation-8 "
+        style={{
+          backgroundColor:
+            solicitud.estado === "FINALIZADO"
+              ? theme.completedCardBackground
+              : theme.form,
+          borderColor: theme.border,
+        }}
+      >
+        <MascotaAvatar especie={solicitud.especieMascota} />
 
-      <View className="ml-3 flex-1 gap-2">
-        <View className="flex-row items-center justify-between gap-2">
-          <Text
-            className="flex-1 text-lg font-bold"
-            style={{ color: theme.text }}
-            numberOfLines={1}
-          >
-            {solicitud.mascotaNombre}
-          </Text>
-
-          <View
-            className="rounded-full px-3 py-1"
-            style={{ backgroundColor: theme.accentSoft }}
-          >
-            <Text className="text-xs font-bold" style={{ color: theme.text }}>
-              {solicitud.tipoServicio}
-            </Text>
-          </View>
-        </View>
-
-        <Text
-          className="text-sm"
-          style={{ color: theme.textSecondary }}
-          numberOfLines={2}
-        >
-          {solicitud.descripcion}
-        </Text>
-
-        <View className="flex-row items-center justify-between gap-2">
-          <View className="flex-1 flex-row items-center gap-1">
-            <Ionicons
-              name="calendar-outline"
-              size={16}
-              color={theme.textSecondary}
-            />
+        <View className="ml-3 min-w-0 flex-1 gap-2">
+          <View className="flex-row items-center gap-2">
             <Text
-              className="flex-1 text-xs"
-              style={{ color: theme.textSecondary }}
+              className="min-w-0 flex-1 text-xl font-bold"
+              style={{ color: theme.text }}
               numberOfLines={1}
             >
-              {fecha}
+              {solicitud.mascotaNombre}
+            </Text>
+            <Text
+              className="text-right text-xs"
+              style={{ color: theme.textMuted }}
+            >
+              Código: {solicitud.codigo}
             </Text>
           </View>
 
-          <TouchableOpacity
-            className="rounded-full px-3 py-2"
-            style={{ backgroundColor: theme.primarySoft }}
-            onPress={() => onVerDetalles(solicitud.id)}
-            activeOpacity={0.7}
-            accessibilityRole="button"
-          >
-            <Text className="text-xs font-bold" style={{ color: theme.text }}>
-              Más detalles
+          <View className="gap-2 pr-8">
+            <View className="min-w-0 flex-row flex-wrap items-center justify-between gap-x-2 gap-y-1">
+              <ServicioLabel servicio={solicitud.tipoServicio} />
+            </View>
+
+            <View className="flex-row flex-wrap items-center gap-x-3 gap-y-1">
+              <View className="flex-row items-center gap-1">
+                <Ionicons
+                  name="calendar-outline"
+                  size={15}
+                  color={theme.textSecondary}
+                />
+                <Text
+                  className="text-sm"
+                  style={{ color: theme.textSecondary }}
+                >
+                  {fecha.charAt(0).toUpperCase() + fecha.slice(1)}
+                </Text>
+              </View>
+              <View className="flex-row items-center gap-1">
+                <Ionicons
+                  name="time-outline"
+                  size={15}
+                  color={theme.textSecondary}
+                />
+                <Text
+                  className="text-sm"
+                  style={{ color: theme.textSecondary }}
+                >
+                  {hora}
+                </Text>
+              </View>
+            </View>
+
+            <View className="flex-row flex-wrap gap-2">
+              <EstadoChip estado={solicitud.estado} />
+              <PrioridadChip prioridad={solicitud.prioridad} />
+            </View>
+
+            <Text
+              className="min-w-0 text-sm"
+              style={{ color: theme.textSecondary }}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {solicitud.descripcion}
             </Text>
-          </TouchableOpacity>
+          </View>
+          <View
+            className="absolute inset-y-0 right-0 justify-center"
+            pointerEvents="none"
+          >
+            <Ionicons name="chevron-forward" size={22} color={theme.primary} />
+          </View>
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }

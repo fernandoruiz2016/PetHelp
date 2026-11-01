@@ -1,4 +1,5 @@
 import { useTheme } from "@/presentation/context/ThemeContext";
+import { router } from "expo-router";
 import { View } from "react-native";
 import { HomeSumaryCard } from "./HomeSummaryCard";
 
@@ -18,17 +19,26 @@ export const HomeSumary = ({
   const { theme } = useTheme();
 
   return (
-    <View className="mb-8 w-full gap-3">
+    <View className="w-full gap-4">
       <View className="flex-row gap-3">
         <HomeSumaryCard
-          title="Solicitudes de hoy"
+          title="Citas de hoy"
+          onPress={() =>
+            router.push({ pathname: "/solicitudes", params: { filtro: "hoy" } })
+          }
           value={String(totalHoy)}
           icon="document-text-outline"
           color={theme.primary}
           backgroundColor={theme.primarySoft}
         />
         <HomeSumaryCard
-          title="Pendientes"
+          title="Pendientes "
+          onPress={() =>
+            router.push({
+              pathname: "/solicitudes",
+              params: { filtro: "pendientes" },
+            })
+          }
           value={String(solicitudesPendientes)}
           icon="calendar"
           color={theme.accent}
@@ -39,6 +49,12 @@ export const HomeSumary = ({
       <View className="flex-row gap-3">
         <HomeSumaryCard
           title="En Atención"
+          onPress={() =>
+            router.push({
+              pathname: "/solicitudes",
+              params: { filtro: "en_atencion" },
+            })
+          }
           value={String(solicitudesEnAtencion)}
           icon="hourglass"
           color={theme.primary}
@@ -46,6 +62,12 @@ export const HomeSumary = ({
         />
         <HomeSumaryCard
           title="Finalizadas"
+          onPress={() =>
+            router.push({
+              pathname: "/solicitudes",
+              params: { filtro: "finalizadas" },
+            })
+          }
           value={String(solicitudesFinalizadas)}
           icon="checkmark"
           color={theme.success}

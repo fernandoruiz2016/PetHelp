@@ -1,61 +1,112 @@
 import { AppHeader } from "@/presentation/components/shared/AppHeader";
 import { ScreenLayout } from "@/presentation/components/shared/ScreenLayout";
-import { SolicitudForm } from "@/presentation/components/solicitudes/SolicitudForm";
+import { SolicitudDetalle } from "@/presentation/components/solicitudes/SolicitudDetalle";
 import { useSolicitudes } from "@/presentation/context/SolicitudesContext";
 import { useTheme } from "@/presentation/context/ThemeContext";
+import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams } from "expo-router";
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, Text, View } from "react-native";
+import {
+  Alert,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 
-export default function SolicitudesRoute() {
-    const { id } = useLocalSearchParams<{ id: string }>();
+export default function SolicitudDetalleRoute() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { buscar, eliminar } = useSolicitudes();
+  const { theme } = useTheme();
+  const solicitud = buscar(id);
 
-    const { buscar, actualizar } = useSolicitudes();
-    const solicitud = buscar(id);
+  const borrarSolicitud = () => {
+    eliminar(id);
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/solicitudes");
+    }
+  };
 
-    if (!solicitud) {
-        return <View className="flex-1 items-center justify-center bg-slate-50 px-6"><Text className="text-5xl">🔎</Text><Text className="mt-4 text-xl font-bold text-slate-800">No se encontró la cita</Text></View>;
+  const confirmarEliminacion = () => {
+    const mensaje = `¿Eliminar la cita de ${solicitud?.mascotaNombre}? Esta acción no se puede deshacer.`;
+
+    if (Platform.OS === "web") {
+      if (globalThis.confirm(mensaje)) borrarSolicitud();
+      return;
     }
 
-    const { theme } = useTheme();
-    return (
-        <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            className="flex-1 bg-white"
+    Alert.alert("Eliminar cita", mensaje, [
+      { text: "Cancelar", style: "cancel" },
+      { text: "Eliminar", style: "destructive", onPress: borrarSolicitud },
+    ]);
+  };
+
+  return (
+    <ScreenLayout style={{ padding: 0 }} areaSegura="sinSuperior">
+      <AppHeader titulo="Detalles de la cita" isHome={false} />
+      {solicitud ? (
+        <ScrollView
+          className="flex-1"
+          contentContainerStyle={{
+            flexGrow: 1,
+            paddingHorizontal: 32,
+            paddingTop: 20,
+            paddingBottom: 24,
+          }}
         >
-            <ScreenLayout
-                style={{ justifyContent: "flex-start", padding: 0 }}
-                areaSegura="sinSuperior"
+          <SolicitudDetalle solicitud={solicitud} />
+
+          <View className="mt-6 shrink-0 gap-3">
+            <Pressable
+              className="h-14 flex-row items-center justify-center gap-3 rounded-xl"
+              style={{ backgroundColor: theme.primary }}
+              onPress={() =>
+                router.push({
+                  pathname: "/solicitudes/[id]/editar",
+                  params: { id },
+                })
+              }
+              accessibilityRole="button"
+              accessibilityLabel="Editar cita"
             >
-                <AppHeader isHome={false} />
-
-                <ScrollView>
-                    <View className="flex-col gap-4 px-8 pb-8">
-                        <Text
-                            className="font-extrabold text-3xl mt-4 m-auto"
-                            style={{ color: theme.primary }}
-                        >
-                            Editar Cita
-                        </Text>
-
-                        <View
-                            className="pt-5 pb-5 px-6 py-6 rounded-[30] shadow-lg shadow-black/50 elevation-8"
-                            style={{ backgroundColor: theme.background }}
-                        >
-                            <SolicitudForm
-                                initialValues={solicitud}
-                                submitLabel="Actualizar"
-                                onSubmit={(datos) => {
-                                    // El formulario valida; esta pantalla decide guardar y navegar.
-                                    actualizar(id, datos);
-                                    Alert.alert('Registro actualizado', 'Los cambios se han guardado');
-                                    router.back();
-                                }} />
-                        </View>
-
-                    </View>
-                </ScrollView>
-
-            </ScreenLayout>
-        </KeyboardAvoidingView>
-    );
+              <Ionicons
+                name="create-outline"
+                size={22}
+                color={theme.onPrimary}
+              />
+              <Text
+                className="text-base font-bold"
+                style={{ color: theme.onPrimary }}
+              >
+                Editar cita
+              </Text>
+            </Pressable>
+            <Pressable
+              className="h-14 flex-row items-center justify-center gap-3 rounded-xl border"
+              style={{ backgroundColor: theme.form, borderColor: theme.error }}
+              onPress={confirmarEliminacion}
+              accessibilityRole="button"
+              accessibilityLabel="Eliminar cita"
+            >
+              <Ionicons name="trash-outline" size={22} color={theme.error} />
+              <Text
+                className="text-base font-bold"
+                style={{ color: theme.error }}
+              >
+                Eliminar cita
+              </Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      ) : (
+        <View className="flex-1 items-center justify-center px-6">
+          <Text className="text-center text-xl" style={{ color: theme.text }}>
+            No se encontró la cita.
+          </Text>
+        </View>
+      )}
+    </ScreenLayout>
+  );
 }

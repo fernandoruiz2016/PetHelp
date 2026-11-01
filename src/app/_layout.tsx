@@ -14,10 +14,10 @@ function AppStack() {
         <Stack.Screen name="index" />
         <Stack.Screen name="login" />
         <Stack.Screen name="register" />
-        <Stack.Screen name="home" />
-        <Stack.Screen name="solicitudes/index" />
+        <Stack.Screen name="(tabs)" />
         <Stack.Screen name="solicitudes/nuevo" />
         <Stack.Screen name="solicitudes/[id]" />
+        <Stack.Screen name="solicitudes/[id]/editar" />
       </Stack>
     </>
   );
@@ -27,7 +27,7 @@ export default function RootLayout() {
   return (
     <ThemeProvider>
       <SolicitudProvider>
-        <AppStack/>
+        <AppStack />
       </SolicitudProvider>
     </ThemeProvider>
   );

@@ -16,7 +16,7 @@ export function solicitudesReducer(
     case "ACTUALIZAR":
       return state.map((solicitud) =>
         solicitud.id === action.payload.id
-          ? { ...solicitud, ...action.payload.datos }
+          ? { ...solicitud, ...action.payload.datos, codigo: solicitud.codigo }
           : solicitud,
       );
 

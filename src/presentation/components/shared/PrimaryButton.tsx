@@ -20,7 +20,10 @@ export const PrimaryButton = ({
       activeOpacity={0.8}
       style={{ backgroundColor: theme.primary }}
     >
-      <Text className="text-white font-bold text-lg tracking-wide">
+      <Text
+        className="font-bold text-lg tracking-wide"
+        style={{ color: theme.onPrimary }}
+      >
         {title}
       </Text>
     </TouchableOpacity>

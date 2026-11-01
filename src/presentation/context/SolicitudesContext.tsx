@@ -1,11 +1,13 @@
 import { initialData } from "@/data/SolicitudesIniciales";
 import { Solicitud, SolicitudFormData } from "@/domain/models/Solicitud";
+import { generarCodigoCita } from "@/domain/services/generarCodigoCita";
 import {
   createContext,
   PropsWithChildren,
   useContext,
   useEffect,
   useReducer,
+  useRef,
 } from "react";
 import { solicitudesReducer } from "../reducers/SolicitudesReducer";
 
@@ -23,10 +25,14 @@ const SolicitudesContext = createContext<SolicitudesContextValue | undefined>(
 
 export function SolicitudProvider({ children }: PropsWithChildren) {
   const [solicitudes, dispatch] = useReducer(solicitudesReducer, []);
+  const codigosReservados = useRef(new Set<string>());
 
   useEffect(() => {
     async function loadInitialData() {
       const data = await initialData();
+      data.forEach((solicitud) =>
+        codigosReservados.current.add(solicitud.codigo),
+      );
       dispatch({ type: "CARGAR_SOLICITUDES_INICIALES", payload: data });
     }
 
@@ -34,12 +40,14 @@ export function SolicitudProvider({ children }: PropsWithChildren) {
   }, []);
 
   const crear = (datos: SolicitudFormData) => {
+    const codigo = generarCodigoCita(codigosReservados.current);
+    codigosReservados.current.add(codigo);
     const nuevaSolicitud: Solicitud = {
       ...datos,
       id: Date.now().toString(),
+      codigo,
       fechaRegistro: new Date().toISOString(),
       estado: "PENDIENTE",
-      prioridad: "NORMAL",
     };
     dispatch({
       type: "CREAR",

@@ -24,6 +24,7 @@ export const CustomTextInput = ({
   iconName,
   onFocus,
   onBlur,
+  multiline,
   ...props
 }: CustomTextInputProps) => {
   const [isSecure, setIsSecure] = useState(isPassword || false);
@@ -33,13 +34,14 @@ export const CustomTextInput = ({
 
   return (
     <View className="mb-4">
-      <Text className="text-dark-text font-semibold mb-2 ml-1">{label}</Text>
+      <Text className="font-semibold mb-2 ml-1" style={{ color: theme.text }}>
+        {label}
+      </Text>
 
       <View
-        className={`flex-row items-center border-2 rounded-2xl bg-slate-50 px-4 h-14 ${
-          error ? "bg-red-50" : "bg-white"
-        }`}
+        className={`flex-row items-center border-2 rounded-2xl px-4 ${multiline ? "h-32" : "h-14"}`}
         style={{
+          backgroundColor: theme.input,
           borderColor: error
             ? theme.error
             : isFocused
@@ -57,9 +59,14 @@ export const CustomTextInput = ({
         )}
 
         <TextInput
-          className="flex-1 text-dark-text h-full pt-1 leading-none"
+          className={
+            multiline ? "h-full flex-1 py-3" : "h-full flex-1 pt-1 leading-none"
+          }
+          style={{ color: theme.text }}
           secureTextEntry={isSecure}
-          placeholderTextColor="#94a3b8"
+          multiline={multiline}
+          textAlignVertical={multiline ? "top" : undefined}
+          placeholderTextColor={theme.placeholder}
           onFocus={(e) => {
             setIsFocused(true);
             onFocus && onFocus(e);
@@ -86,7 +93,10 @@ export const CustomTextInput = ({
       </View>
 
       {error && (
-        <Text className="text-red-500 text-sm mt-2 ml-2 font-medium">
+        <Text
+          className="text-sm mt-2 ml-2 font-medium"
+          style={{ color: theme.error }}
+        >
           {error}
         </Text>
       )}

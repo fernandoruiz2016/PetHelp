@@ -9,6 +9,7 @@ export type EspecieMascota = "PERRO" | "GATO" | "OTRO";
 
 export interface Solicitud {
   id: string;
+  codigo: string;
   clienteNombre: string;
   telefono: string;
   mascotaNombre: string;
@@ -23,5 +24,5 @@ export interface Solicitud {
 
 export type SolicitudFormData = Omit<
   Solicitud,
-  "id" | "fechaRegistro" | "estado" | "prioridad"
+  "id" | "codigo" | "fechaRegistro"
 >;

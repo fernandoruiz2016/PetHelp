@@ -1,105 +1,120 @@
 import { useTheme } from "@/presentation/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
-import { Text, View } from "react-native";
-import DropDownPicker from 'react-native-dropdown-picker';
+import { Keyboard, Pressable, Text, View } from "react-native";
 
 interface SelectOption {
-    label: string;
-    value: string;
+  label: string;
+  value: string;
 }
 
 interface CustomSelectInputProps {
-    label: string;
-    value: string;
-    options: SelectOption[];
-    onValueChange: (value: string) => void;
-    error?: string;
+  label: string;
+  value: string;
+  options: SelectOption[];
+  onValueChange: (value: string) => void;
+  error?: string;
 }
 
 export const CustomSelectInput = ({
-    label,
-    value,
-    options,
-    onValueChange,
-    error,
+  label,
+  value,
+  options,
+  onValueChange,
+  error,
 }: CustomSelectInputProps) => {
-    const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+  const { theme } = useTheme();
+  const selectedOption = options.find((option) => option.value === value);
 
-    const { theme } = useTheme();
+  return (
+    <View className="mb-4">
+      <Text className="mb-2 ml-1 font-semibold" style={{ color: theme.text }}>
+        {label}
+      </Text>
 
-    return (
-        <View className="mb-4">
-            <Text className="text-dark-text font-semibold mb-2 ml-1">{label}</Text>
+      <Pressable
+        className="h-14 flex-row items-center justify-between rounded-2xl border-2 px-4"
+        style={{
+          borderColor: error
+            ? theme.error
+            : open
+              ? theme.primary
+              : theme.inputBorder,
+          backgroundColor: theme.input,
+        }}
+        onPress={() => {
+          Keyboard.dismiss();
+          setOpen((current) => !current);
+        }}
+        accessibilityRole="button"
+        accessibilityLabel={`${label}: ${selectedOption?.label ?? "Sin seleccionar"}`}
+        accessibilityState={{ expanded: open }}
+      >
+        <Text
+          className="flex-1 text-[15px]"
+          style={{ color: selectedOption ? theme.text : theme.placeholder }}
+          numberOfLines={1}
+        >
+          {selectedOption?.label ?? "Seleccionar una opción"}
+        </Text>
+        <Ionicons
+          name={open ? "chevron-up" : "chevron-down"}
+          size={20}
+          color={theme.textMuted}
+        />
+      </Pressable>
 
-            <View className="flex-row items-center">
+      {open && (
+        <View
+          className="mt-2 overflow-hidden rounded-2xl border-2"
+          style={{
+            borderColor: theme.inputBorder,
+            backgroundColor: theme.form,
+          }}
+        >
+          {options.map((option, index) => {
+            const selected = option.value === value;
 
-                <View className="flex-1">
-                    <DropDownPicker<string>
-                        open={open}
-                        value={value || null}
-                        items={options}
-                        setOpen={setOpen}
-                        setValue={(callback) => {
-                            const nextValue =
-                                typeof callback === "function"
-                                    ? callback(value || null)
-                                    : callback;
+            return (
+              <Pressable
+                key={option.value}
+                className="min-h-12 flex-row items-center justify-between px-4 py-3"
+                style={{
+                  backgroundColor: selected ? theme.primarySoft : theme.form,
+                  borderBottomWidth: index < options.length - 1 ? 1 : 0,
+                  borderBottomColor: theme.inputBorder,
+                }}
+                onPress={() => {
+                  onValueChange(option.value);
+                  setOpen(false);
+                }}
+                accessibilityRole="button"
+                accessibilityState={{ selected }}
+              >
+                <Text
+                  className="flex-1 text-[15px]"
+                  style={{ color: selected ? theme.primary : theme.text }}
+                >
+                  {option.label}
+                </Text>
+                {selected && (
+                  <Ionicons name="checkmark" size={20} color={theme.primary} />
+                )}
+              </Pressable>
+            );
+          })}
+        </View>
+      )}
 
-                            onValueChange(nextValue ?? "");
-                        }}
-                        listMode="SCROLLVIEW"
-                        style={{
-                            minHeight: 56,
-                            borderWidth: 2,
-                            borderRadius: 16,
-                            borderColor: error ? theme.error : theme.inputBorder,
-                            backgroundColor: error ? theme.form : theme.input,
-                            paddingLeft: 16,
-                        }}
-                        dropDownContainerStyle={{
-                            borderWidth: 2,
-                            borderColor: theme.inputBorder,
-                            borderRadius: 16,
-                            backgroundColor: theme.form,
-                        }}
-                        textStyle={{
-                            fontSize: 15,
-                            color: theme.text,
-                        }}
-                        placeholderStyle={{
-                            color: theme.placeholder,
-                        }}
-                        listItemLabelStyle={{
-                            color: theme.text,
-                        }}
-                        selectedItemContainerStyle={{
-                            backgroundColor: theme.primarySoft,
-                        }}
-                        selectedItemLabelStyle={{
-                            fontWeight: "bold",
-                            color: theme.primary,
-                        }}
-                        ArrowDownIconComponent={() => (
-                            <Ionicons
-                                name="chevron-down"
-                                size={20}
-                                color={theme.textMuted}
-                            />
-                        )}
-                        ArrowUpIconComponent={() => (
-                            <Ionicons
-                                name="chevron-up"
-                                size={20}
-                                color={theme.textMuted}
-                            />
-                        )}
-                        zIndex={open ? 3000 : 1}
-                        zIndexInverse={1}
-                    />
-                </View>
-            </View>
-
-        </View >
-    );
+      {error && (
+        <Text
+          className="ml-2 mt-2 text-sm font-medium"
+          style={{ color: theme.error }}
+        >
+          {error}
+        </Text>
+      )}
+    </View>
+  );
 };
