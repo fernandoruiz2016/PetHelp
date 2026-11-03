@@ -6,7 +6,7 @@ Está desarrollado con Expo y React Native. Las solicitudes se gestionan en memo
 
 ## Funcionalidades
 
-- Inicio de sesión de demostración y formulario de registro con validaciones.
+- Inicio de sesión de demostración, prueba y formulario de registro con validaciones.
 - Inicio con el resumen de las citas del día y accesos al listado y a una nueva cita.
 - Listado con búsqueda por mascota, cliente o código, y filtros por fecha, estado, servicio y prioridad.
 - Creación de citas con datos del cliente y la mascota, servicio, descripción, prioridad, fecha y hora. La prioridad inicial es **Normal** y el estado inicial es **Pendiente**.
