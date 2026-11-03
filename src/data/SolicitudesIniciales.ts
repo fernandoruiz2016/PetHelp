@@ -13,7 +13,7 @@ const solicitudesIniciales: Solicitud[] = [
     prioridad: "NORMAL",
     descripcion: "Consulta general para Dante. Cliente de Miraflores.",
     estado: "PENDIENTE",
-    fechaCita: "2026-11-01T10:00:00-05:00",
+    fechaCita: "2026-11-03T10:00:00-05:00",
     fechaRegistro: "2026-11-01T15:00:00.000Z",
   },
   {
@@ -28,7 +28,7 @@ const solicitudesIniciales: Solicitud[] = [
     descripcion:
       "Vacunación programada para Moka. Cliente de Santiago de Surco.",
     estado: "FINALIZADO",
-    fechaCita: "2026-11-01T10:00:00-05:00",
+    fechaCita: "2026-11-03T10:00:00-05:00",
     fechaRegistro: "2026-11-01T15:00:00.000Z",
   },
   {
@@ -42,7 +42,7 @@ const solicitudesIniciales: Solicitud[] = [
     prioridad: "NORMAL",
     descripcion: "Baño y corte de pelo para Rocco. Cliente de San Borja.",
     estado: "PENDIENTE",
-    fechaCita: "2026-11-01T15:00:00-05:00",
+    fechaCita: "2026-11-03T15:00:00-05:00",
     fechaRegistro: "2026-11-01T15:00:00.000Z",
   },
   {
@@ -57,7 +57,7 @@ const solicitudesIniciales: Solicitud[] = [
     descripcion:
       "Solicitud de atención por un accidente de Otto. Cliente de Barranco.",
     estado: "PENDIENTE",
-    fechaCita: "2026-11-01T10:00:00-05:00",
+    fechaCita: "2026-11-03T10:00:00-05:00",
     fechaRegistro: "2026-11-01T15:00:00.000Z",
   },
   {
@@ -72,7 +72,7 @@ const solicitudesIniciales: Solicitud[] = [
     descripcion:
       "Consulta por falta de apetito de Cleo. Cliente de Jesús María.",
     estado: "EN_ATENCION",
-    fechaCita: "2026-11-01T10:30:00-05:00",
+    fechaCita: "2026-11-03T10:30:00-05:00",
     fechaRegistro: "2026-11-01T15:00:00.000Z",
   },
   {
@@ -87,7 +87,7 @@ const solicitudesIniciales: Solicitud[] = [
     descripcion:
       "Revisión del carné y vacunación de Niko. Cliente de Pueblo Libre.",
     estado: "PENDIENTE",
-    fechaCita: "2026-11-01T09:00:00-05:00",
+    fechaCita: "2026-11-03T09:00:00-05:00",
     fechaRegistro: "2026-11-01T15:00:00.000Z",
   },
   {
@@ -101,7 +101,7 @@ const solicitudesIniciales: Solicitud[] = [
     prioridad: "NORMAL",
     descripcion: "Baño y corte de uñas para Tango. Cliente de Lince.",
     estado: "FINALIZADO",
-    fechaCita: "2026-11-01T13:00:00-05:00",
+    fechaCita: "2026-11-03T13:00:00-05:00",
     fechaRegistro: "2026-11-01T15:00:00.000Z",
   },
   {
@@ -116,7 +116,7 @@ const solicitudesIniciales: Solicitud[] = [
     descripcion:
       "Consulta por molestias al caminar de Balú. Cliente de San Miguel.",
     estado: "PENDIENTE",
-    fechaCita: "2026-11-01T11:00:00-05:00",
+    fechaCita: "2026-11-04T11:00:00-05:00",
     fechaRegistro: "2026-11-01T15:00:00.000Z",
   },
   {
@@ -131,7 +131,7 @@ const solicitudesIniciales: Solicitud[] = [
     descripcion:
       "Solicitud de atención por dificultad respiratoria de Frida. Cliente de Surquillo.",
     estado: "EN_ATENCION",
-    fechaCita: "2026-11-01T11:00:00-05:00",
+    fechaCita: "2026-11-03T11:00:00-05:00",
     fechaRegistro: "2026-11-01T15:00:00.000Z",
   },
   {
@@ -145,7 +145,7 @@ const solicitudesIniciales: Solicitud[] = [
     prioridad: "NORMAL",
     descripcion: "Vacunación programada para Chester. Cliente de La Molina.",
     estado: "FINALIZADO",
-    fechaCita: "2026-11-01T16:00:00-05:00",
+    fechaCita: "2026-11-03T16:00:00-05:00",
     fechaRegistro: "2026-11-01T15:00:00.000Z",
   },
   {
@@ -159,7 +159,7 @@ const solicitudesIniciales: Solicitud[] = [
     prioridad: "NORMAL",
     descripcion: "Control general de Luna. Cliente de Miraflores.",
     estado: "PENDIENTE",
-    fechaCita: "2026-11-02T09:00:00-05:00",
+    fechaCita: "2026-11-04T09:00:00-05:00",
     fechaRegistro: "2026-10-30T14:00:00.000Z",
   },
   {
@@ -173,7 +173,7 @@ const solicitudesIniciales: Solicitud[] = [
     prioridad: "NORMAL",
     descripcion: "Vacunación anual de Max. Cliente de San Borja.",
     estado: "PENDIENTE",
-    fechaCita: "2026-11-02T10:30:00-05:00",
+    fechaCita: "2026-11-04T10:30:00-05:00",
     fechaRegistro: "2026-10-30T14:20:00.000Z",
   },
   {
@@ -187,7 +187,7 @@ const solicitudesIniciales: Solicitud[] = [
     prioridad: "NORMAL",
     descripcion: "Baño y cepillado de Pelusa. Cliente de Surco.",
     estado: "PENDIENTE",
-    fechaCita: "2026-11-02T12:00:00-05:00",
+    fechaCita: "2026-11-04T12:00:00-05:00",
     fechaRegistro: "2026-10-30T14:40:00.000Z",
   },
   {
@@ -201,7 +201,7 @@ const solicitudesIniciales: Solicitud[] = [
     prioridad: "ALTA",
     descripcion: "Evaluación por cojera de Toby. Cliente de Barranco.",
     estado: "PENDIENTE",
-    fechaCita: "2026-11-02T14:00:00-05:00",
+    fechaCita: "2026-11-04T14:00:00-05:00",
     fechaRegistro: "2026-10-30T15:00:00.000Z",
   },
   {
@@ -215,7 +215,7 @@ const solicitudesIniciales: Solicitud[] = [
     prioridad: "NORMAL",
     descripcion: "Revisión de rutina de Nube. Cliente de Lince.",
     estado: "PENDIENTE",
-    fechaCita: "2026-11-02T16:00:00-05:00",
+    fechaCita: "2026-11-04T16:00:00-05:00",
     fechaRegistro: "2026-10-30T15:20:00.000Z",
   },
   {
@@ -229,7 +229,7 @@ const solicitudesIniciales: Solicitud[] = [
     prioridad: "NORMAL",
     descripcion: "Refuerzo de vacunas de Simba. Cliente de San Miguel.",
     estado: "PENDIENTE",
-    fechaCita: "2026-11-03T09:30:00-05:00",
+    fechaCita: "2026-11-04T09:30:00-05:00",
     fechaRegistro: "2026-10-31T13:00:00.000Z",
   },
   {
@@ -243,7 +243,7 @@ const solicitudesIniciales: Solicitud[] = [
     prioridad: "NORMAL",
     descripcion: "Baño y corte de uñas de Bongo. Cliente de Pueblo Libre.",
     estado: "PENDIENTE",
-    fechaCita: "2026-11-03T11:00:00-05:00",
+    fechaCita: "2026-11-04T11:00:00-05:00",
     fechaRegistro: "2026-10-31T13:20:00.000Z",
   },
   {
