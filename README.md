@@ -96,3 +96,9 @@ src/
 ```
 
 La lista se inicializa con **20 solicitudes de ejemplo** definidas en `src/data/SolicitudesIniciales.ts`. `SolicitudProvider` las carga en memoria y comparte las operaciones de crear, actualizar, buscar y eliminar. El reducer aplica los cambios a la lista en memoria; las pantallas consumen ese contexto. Los cambios se pierden al reiniciar la aplicación.
+
+## Integrantes del grupo
+
+- Fernando Ruiz
+- Miler Flores
+- Laura Ruiz
