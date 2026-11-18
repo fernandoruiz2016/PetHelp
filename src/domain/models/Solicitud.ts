@@ -8,7 +8,7 @@ export type PrioridadSolicitud = "NORMAL" | "ALTA" | "URGENTE";
 export type EspecieMascota = "PERRO" | "GATO" | "OTRO";
 
 export interface Solicitud {
-  id: string;
+  id: number;
   codigo: string;
   clienteNombre: string;
   telefono: string;

@@ -1,11 +1,15 @@
-import { initialData } from "@/infraestructure/SolicitudesIniciales";
 import { Solicitud, SolicitudFormData } from "@/domain/models/Solicitud";
 import { generarCodigoCita } from "@/domain/services/generarCodigoCita";
+
+
+import { createSolicitudRepository } from "@/infraestructure/repositories/solicitudRepository";
+import { useSQLiteContext } from "expo-sqlite";
 import {
   createContext,
   PropsWithChildren,
   useContext,
   useEffect,
+  useMemo,
   useReducer,
   useRef,
 } from "react";
@@ -13,10 +17,10 @@ import { solicitudesReducer } from "../reducers/SolicitudesReducer";
 
 interface SolicitudesContextValue {
   solicitudes: Solicitud[];
-  crear: (data: SolicitudFormData) => void;
-  actualizar: (id: string, datos: SolicitudFormData) => void;
-  eliminar: (id: string) => void;
-  buscar: (id: string) => Solicitud | undefined;
+  crear: (data: SolicitudFormData) => Promise<void>;
+  actualizar: (id: number, datos: SolicitudFormData) => Promise<void>;
+  eliminar: (id: number) => Promise<void>;
+  buscar: (id: number) => Solicitud | undefined;
 }
 
 const SolicitudesContext = createContext<SolicitudesContextValue | undefined>(
@@ -24,50 +28,84 @@ const SolicitudesContext = createContext<SolicitudesContextValue | undefined>(
 );
 
 export function SolicitudProvider({ children }: PropsWithChildren) {
+  const db = useSQLiteContext();
+
+  const repository = useMemo(
+    () => createSolicitudRepository(db),
+    [db],
+  );
+
   const [solicitudes, dispatch] = useReducer(solicitudesReducer, []);
   const codigosReservados = useRef(new Set<string>());
 
   useEffect(() => {
     async function loadInitialData() {
-      const data = await initialData();
-      data.forEach((solicitud) =>
-        codigosReservados.current.add(solicitud.codigo),
-      );
-      dispatch({ type: "CARGAR_SOLICITUDES_INICIALES", payload: data });
+      try {
+        const data = await repository.listar();
+
+        data.forEach((solicitud) =>
+          codigosReservados.current.add(solicitud.codigo),
+        );
+
+        dispatch({
+          type: "CARGAR_SOLICITUDES_INICIALES",
+          payload: data,
+        });
+      } catch (error) {
+        console.error("Error al cargar solicitudes:", error);
+      }
     }
 
     loadInitialData();
-  }, []);
+  }, [repository]);
 
-  const crear = (datos: SolicitudFormData) => {
-    const codigo = generarCodigoCita(codigosReservados.current);
-    codigosReservados.current.add(codigo);
-    const nuevaSolicitud: Solicitud = {
-      ...datos,
-      id: Date.now().toString(),
-      codigo,
-      fechaRegistro: new Date().toISOString(),
-      estado: "PENDIENTE",
-    };
-    dispatch({
-      type: "CREAR",
-      payload: nuevaSolicitud,
-    });
-  };
-  const actualizar = (id: string, datos: SolicitudFormData) => {
-    dispatch({
-      type: "ACTUALIZAR",
-      payload: { id, datos },
-    });
-  };
-  const eliminar = (id: string) => {
-    dispatch({
-      type: "ELIMINAR",
-      payload: id,
-    });
+  const crear = async (datos: SolicitudFormData) => {
+    try {
+      const codigo = generarCodigoCita(codigosReservados.current);
+
+      const nuevaSolicitud = await repository.crear(datos, codigo);
+
+      codigosReservados.current.add(codigo);
+
+      dispatch({
+        type: "CREAR",
+        payload: nuevaSolicitud,
+      });
+    } catch (error) {
+      console.error("Error al crear solicitud:", error);
+      throw error;
+    }
   };
 
-  const buscar = (id: string) =>
+  const actualizar = async (id: number, datos: SolicitudFormData) => {
+    try {
+      await repository.actualizar(id, datos);
+
+      dispatch({
+        type: "ACTUALIZAR",
+        payload: { id, datos },
+      });
+    } catch (error) {
+      console.error("Error al actualizar solicitud:", error);
+      throw error;
+    }
+  };
+
+  const eliminar = async (id: number) => {
+    try {
+      await repository.eliminar(id);
+
+      dispatch({
+        type: "ELIMINAR",
+        payload: id,
+      });
+    } catch (error) {
+      console.error("Error al eliminar solicitud:", error);
+      throw error;
+    }
+  };
+
+  const buscar = (id: number) =>
     solicitudes.find((solicitud) => solicitud.id === id);
 
   return (

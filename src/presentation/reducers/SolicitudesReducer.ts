@@ -2,8 +2,8 @@ import { Solicitud, SolicitudFormData } from "@/domain/models/Solicitud";
 
 export type SolicitudAction =
   | { type: "CREAR"; payload: Solicitud }
-  | { type: "ACTUALIZAR"; payload: { id: string; datos: SolicitudFormData } }
-  | { type: "ELIMINAR"; payload: string }
+  | { type: "ACTUALIZAR"; payload: { id: number; datos: SolicitudFormData } }
+  | { type: "ELIMINAR"; payload: number }
   | { type: "CARGAR_SOLICITUDES_INICIALES"; payload: Solicitud[] };
 
 export function solicitudesReducer(

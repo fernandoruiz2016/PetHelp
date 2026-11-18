@@ -1,6 +1,8 @@
+import { inicializarBaseDatos } from "@/infraestructure/database/database";
 import { SolicitudProvider } from "@/presentation/context/SolicitudesContext";
 import { ThemeProvider, useTheme } from "@/presentation/context/ThemeContext";
 import { Stack } from "expo-router";
+import { SQLiteProvider } from "expo-sqlite";
 import { StatusBar } from "expo-status-bar";
 import "../global.css";
 
@@ -25,10 +27,12 @@ function AppStack() {
 
 export default function RootLayout() {
   return (
-    <ThemeProvider>
-      <SolicitudProvider>
-        <AppStack />
-      </SolicitudProvider>
-    </ThemeProvider>
+    <SQLiteProvider databaseName="vethelp.db" onInit={inicializarBaseDatos}>
+      <ThemeProvider>
+        <SolicitudProvider>
+          <AppStack />
+        </SolicitudProvider>
+      </ThemeProvider>
+    </SQLiteProvider>
   );
 }
