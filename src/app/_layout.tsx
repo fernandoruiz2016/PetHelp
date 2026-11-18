@@ -20,6 +20,7 @@ function AppStack() {
         <Stack.Screen name="solicitudes/nuevo" />
         <Stack.Screen name="solicitudes/[id]" />
         <Stack.Screen name="solicitudes/[id]/editar" />
+        <Stack.Screen name="veterinarios/veterinarios" />
       </Stack>
     </>
   );

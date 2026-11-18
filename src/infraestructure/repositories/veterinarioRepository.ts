@@ -19,7 +19,6 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
     (response) => {
         console.log(`[API RESPONSE] ${response.status} ${response.config.url}`);
-        console.log('[API DATA]', response.data);
         return response;
     },
     (error) => {
@@ -36,7 +35,7 @@ function validarBaseUrl() {
 
 export async function listar(): Promise<Veterinario[]> {
     validarBaseUrl();
-    const response = await api.get<Veterinario[]>('/users');
+    const response = await api.get<Veterinario[]>('/users?limit=8');
     return response.data;
 }
 

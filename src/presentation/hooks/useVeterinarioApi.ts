@@ -17,7 +17,6 @@ export function useVeterinarioApi(repository: VeterinarioRepository) {
         try {
             setLoading(true);
             setError(null);
-            console.log('[SCREEN] Ejecutando GET /veterinarios');
 
             const data = await repository.listar();
             setVeterinarios(data);

@@ -34,7 +34,7 @@ export function SolicitudItem({
 
   return (
     <Pressable
-      onPress={() => onVerDetalles(solicitud.id)}
+      onPress={() => onVerDetalles(String(solicitud.id))}
       accessibilityRole="button"
       accessibilityLabel={`Ver detalles de la cita con código ${solicitud.codigo}, ${solicitud.mascotaNombre}`}
     >

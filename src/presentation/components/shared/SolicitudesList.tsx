@@ -45,7 +45,7 @@ export function SolicitudesList({
       className="flex-1"
       keyboardShouldPersistTaps="handled"
       data={solicitudesOrdenadas}
-      keyExtractor={(item) => item.id}
+      keyExtractor={(item) => String(item.id)}
       renderItem={({ item }) => (
         <SolicitudItem
           solicitud={item}

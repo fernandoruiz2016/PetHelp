@@ -124,6 +124,12 @@ export default function HomeRoute() {
                   iconName="add-circle-outline"
                   onPress={() => router.push("/solicitudes/nuevo")}
                 />
+
+                <HomeModuleCard
+                  title="Veterinarios"
+                  iconName="people-outline"
+                  onPress={() => router.push("/veterinarios/veterinarios" as any)}
+                />
               </View>
             </ScrollView>
           </>
