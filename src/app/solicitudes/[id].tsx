@@ -18,10 +18,10 @@ export default function SolicitudDetalleRoute() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { buscar, eliminar } = useSolicitudes();
   const { theme } = useTheme();
-  const solicitud = buscar(id);
+  const solicitud = buscar(Number(id));
 
   const borrarSolicitud = () => {
-    eliminar(id);
+    eliminar(Number(id));
     if (router.canGoBack()) {
       router.back();
     } else {

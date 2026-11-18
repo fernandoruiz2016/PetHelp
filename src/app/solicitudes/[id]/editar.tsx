@@ -17,7 +17,7 @@ export default function EditarSolicitudRoute() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { buscar, actualizar } = useSolicitudes();
   const { theme } = useTheme();
-  const solicitud = buscar(id);
+  const solicitud = buscar(Number(id));
 
   return (
     <KeyboardAvoidingView
@@ -43,7 +43,7 @@ export default function EditarSolicitudRoute() {
                   solicitudId={id}
                   submitLabel="Actualizar"
                   onSubmit={(datos) => {
-                    actualizar(id, datos);
+                    actualizar(Number(id), datos);
                     Alert.alert(
                       "Registro actualizado",
                       "Los cambios se han guardado",
