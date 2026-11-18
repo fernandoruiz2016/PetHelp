@@ -1,4 +1,4 @@
-import { initialData } from "@/data/SolicitudesIniciales";
+import { initialData } from "@/infraestructure/SolicitudesIniciales";
 import { Solicitud, SolicitudFormData } from "@/domain/models/Solicitud";
 import { generarCodigoCita } from "@/domain/services/generarCodigoCita";
 import {

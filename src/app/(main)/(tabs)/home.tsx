@@ -10,7 +10,8 @@ import { useFechaActual } from "@/presentation/hooks/useFechaActual";
 import { useSolicitudes } from "@/presentation/hooks/useSolicitudes";
 import { Fredoka_700Bold } from "@expo-google-fonts/fredoka";
 import { useFonts } from "expo-font";
-import { router } from "expo-router";
+import { router, useNavigation } from "expo-router";
+import type { DrawerNavigationProp } from "expo-router/drawer";
 import { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -21,6 +22,9 @@ import {
 } from "react-native";
 
 export default function HomeRoute() {
+  const navigation = useNavigation<DrawerNavigationProp<{ "(tabs)": undefined }>>(
+    "/(main)",
+  );
   const { theme } = useTheme();
   const [cargando, setCargando] = useState(true);
   const [mensaje, setMensaje] = useState("");
@@ -57,7 +61,11 @@ export default function HomeRoute() {
           <HomeWaiting fullScreen />
         ) : (
           <>
-            <AppHeader nombre="Admin" isHome={true} />
+            <AppHeader
+              nombre="Admin"
+              isHome={true}
+              onProfilePress={() => navigation.openDrawer()}
+            />
             <ScrollView
               className="flex-1"
               contentContainerStyle={{ padding: 16, paddingTop: 32 }}
