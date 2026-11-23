@@ -1,30 +1,32 @@
-// AÑADIDO: formulario reutilizado para crear y editar, con validación de campos.
 import type { Solicitud, SolicitudFormData } from "@/domain/models/Solicitud";
-import { useSolicitudes } from "@/presentation/context/SolicitudesContext";
+import { HorarioCitaNoDisponible, rangoDiaCita } from "@/domain/services/horariosCita";
+import { useTheme } from "@/presentation/context/ThemeContext";
+import { useHorasOcupadas } from "@/presentation/hooks/useHorasOcupadas";
 import { useSolicitudForm } from "@/presentation/hooks/useSolicitudForm";
-import { type ReactNode, useRef, useState } from "react";
-import { Alert, View } from "react-native";
+import { type ReactNode, useMemo, useRef, useState } from "react";
+import { Alert, Pressable, Text, View } from "react-native";
 import CustomDateInput from "../shared/CustomDateInput";
 import { CustomSelectInput } from "../shared/CustomSelectInput";
 import { CustomTextInput } from "../shared/CustomTextInput";
 import CustomTimeInput from "../shared/CustomTimeInput";
 import { PrimaryButton } from "../shared/PrimaryButton";
 
-interface SolicitudFormProps {
-  initialValues?: SolicitudFormData;
-  solicitudId?: Solicitud["id"];
+type SolicitudFormProps = {
+  initialValues?: Partial<SolicitudFormData>;
   submitLabel: string;
   onSubmit: (datos: SolicitudFormData) => Promise<void>;
   children?: ReactNode;
-}
+} & (
+  | { modo?: "admin"; solicitudId?: Solicitud["id"]; citas: Solicitud[] }
+  | { modo: "cliente"; consultarHorarios: (fecha: string) => Promise<number[]> }
+);
 
-export function SolicitudForm({
-  initialValues,
-  solicitudId,
-  submitLabel,
-  onSubmit,
-  children,
-}: SolicitudFormProps) {
+export function SolicitudForm(props: SolicitudFormProps) {
+  const { initialValues, submitLabel, onSubmit, children } = props;
+  const esCliente = props.modo === "cliente";
+  const solicitudId = esCliente ? undefined : props.solicitudId;
+  const citasAdmin = esCliente ? undefined : props.citas;
+  const { theme } = useTheme();
   const {
     form,
     errors,
@@ -35,12 +37,24 @@ export function SolicitudForm({
     prepararDatos,
   } = useSolicitudForm(initialValues);
 
-  const { solicitudes } = useSolicitudes();
+  const dia = form.fechaCita ? rangoDiaCita(form.fechaCita) : null;
+  const desde = dia?.desde ?? "";
+  const hasta = dia?.hasta;
+  const horariosCliente = useHorasOcupadas(desde, esCliente ? props.consultarHorarios : undefined);
+  const horasAdmin = useMemo(() => {
+    if (!citasAdmin || !desde || !hasta) return [];
+
+    return citasAdmin
+      .filter((cita) => cita.estado !== "CANCELADA" && cita.id !== solicitudId &&
+        cita.fechaCita >= desde && cita.fechaCita < hasta)
+      .map(({ fechaCita }) => new Date(fechaCita).getHours());
+  }, [citasAdmin, desde, hasta, solicitudId]);
+  const horariosBloqueados = horariosCliente.cargando || horariosCliente.error;
   const [guardando, setGuardando] = useState(false);
   const envioEnCurso = useRef(false);
 
   const enviar = async () => {
-    if (envioEnCurso.current) return;
+    if (envioEnCurso.current || horariosBloqueados) return;
     const datos = prepararDatos();
     if (!datos) return;
 
@@ -48,8 +62,14 @@ export function SolicitudForm({
     setGuardando(true);
     try {
       await onSubmit(datos);
-    } catch {
-      Alert.alert("No se pudo guardar la cita", "Inténtalo de nuevo.");
+    } catch (error) {
+      if (error instanceof HorarioCitaNoDisponible) {
+        actualizarFecha(datos.fechaCita);
+        horariosCliente.recargar();
+        Alert.alert("Horario no disponible", error.message);
+      } else {
+        Alert.alert("No se pudo guardar la cita", "Inténtalo de nuevo.");
+      }
     } finally {
       envioEnCurso.current = false;
       setGuardando(false);
@@ -63,6 +83,7 @@ export function SolicitudForm({
         placeholder="Ej. Carlos Pérez"
         value={form.clienteNombre}
         onChangeText={(valor) => actualizarCampo("clienteNombre", valor)}
+        editable={!esCliente}
         error={errors.clienteNombre}
       />
 
@@ -109,17 +130,19 @@ export function SolicitudForm({
         error={errors.tipoServicio}
       />
 
-      <CustomSelectInput
-        label="Prioridad"
-        value={form.prioridad}
-        options={[
-          { label: "Normal", value: "NORMAL" },
-          { label: "Alta", value: "ALTA" },
-          { label: "Urgente", value: "URGENTE" },
-        ]}
-        onValueChange={(valor) => actualizarCampo("prioridad", valor)}
-        error={errors.prioridad}
-      />
+      {!esCliente && (
+        <CustomSelectInput
+          label="Prioridad"
+          value={form.prioridad}
+          options={[
+            { label: "Normal", value: "NORMAL" },
+            { label: "Alta", value: "ALTA" },
+            { label: "Urgente", value: "URGENTE" },
+          ]}
+          onValueChange={(valor) => actualizarCampo("prioridad", valor)}
+          error={errors.prioridad}
+        />
+      )}
 
       {solicitudId !== undefined && (
         <CustomSelectInput
@@ -155,17 +178,25 @@ export function SolicitudForm({
         value={form.fechaCita}
         onChange={actualizarHora}
         horaSeleccionada={horaSeleccionada}
-        citas={solicitudes}
-        excluirSolicitudId={solicitudId}
+        horasOcupadas={esCliente ? horariosCliente.horas : horasAdmin}
+        disabled={guardando || horariosBloqueados}
         error={errors.horaCita}
       />
+      {horariosCliente.cargando && (
+        <Text className="mb-3" style={{ color: theme.textSecondary }}>Consultando horarios…</Text>
+      )}
+      {horariosCliente.error && (
+        <Pressable accessibilityRole="button" className="mb-3 py-2" onPress={horariosCliente.recargar}>
+          <Text style={{ color: theme.error }}>No se pudieron consultar los horarios. Reintentar</Text>
+        </Pressable>
+      )}
 
       {children}
 
       <PrimaryButton
         title={guardando ? "Guardando…" : submitLabel}
         onPress={enviar}
-        disabled={guardando}
+        disabled={guardando || horariosBloqueados}
       />
     </View>
   );

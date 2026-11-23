@@ -1,140 +1,81 @@
 import { HomeDate } from "@/presentation/components/home/HomeDate";
 import { HomeModuleCard } from "@/presentation/components/home/HomeModuleCard";
-import { HomeSumary } from "@/presentation/components/home/HomeSummary";
-import { HomeWaiting } from "@/presentation/components/home/HomeWaiting";
+import { HomeScreen } from "@/presentation/components/home/HomeScreen";
+import { HomeSummary } from "@/presentation/components/home/HomeSummary";
 import { HomeWelcome } from "@/presentation/components/home/HomeWelcome";
-import { AppHeader } from "@/presentation/components/shared/AppHeader";
-import { ScreenLayout } from "@/presentation/components/shared/ScreenLayout";
+import { useAuth } from "@/presentation/context/AuthContext";
+import { useSolicitudes } from "@/presentation/context/SolicitudesContext";
 import { useTheme } from "@/presentation/context/ThemeContext";
 import { useFechaActual } from "@/presentation/hooks/useFechaActual";
-import { useSolicitudes } from "@/presentation/hooks/useSolicitudes";
-import { Fredoka_700Bold } from "@expo-google-fonts/fredoka";
-import { useFonts } from "expo-font";
+import { abrirCitasAdmin } from "@/presentation/navigation/agenda";
+import { nombreUsuario } from "@/presentation/utils/nombreUsuario";
 import { router, useNavigation } from "expo-router";
 import type { DrawerNavigationProp } from "expo-router/drawer";
-import { useEffect, useState } from "react";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
+import { Text, View } from "react-native";
+
+function useAgendaHoy() {
+  const { solicitudes } = useSolicitudes();
+  const fechaActual = useFechaActual();
+  const hoy = fechaActual.toDateString();
+  const resumen = { totalHoy: 0, solicitudesPendientes: 0, solicitudesEnAtencion: 0, solicitudesFinalizadas: 0 };
+
+  for (const solicitud of solicitudes) {
+    if (new Date(solicitud.fechaCita).toDateString() !== hoy) continue;
+    resumen.totalHoy++;
+    if (solicitud.estado === "PENDIENTE") resumen.solicitudesPendientes++;
+    if (solicitud.estado === "EN_ATENCION") resumen.solicitudesEnAtencion++;
+    if (solicitud.estado === "FINALIZADO") resumen.solicitudesFinalizadas++;
+  }
+
+  return { fechaActual, resumen };
+}
 
 export default function HomeRoute() {
   const navigation = useNavigation<DrawerNavigationProp<{ "(tabs)": undefined }>>(
     "/(admin)/(main)",
   );
+  const { sesion } = useAuth();
   const { theme } = useTheme();
-  const [cargando, setCargando] = useState(true);
-  const [mensaje, setMensaje] = useState("");
-  const [fuenteCargada, errorFuente] = useFonts({ Fredoka_700Bold });
-  const fechaActual = useFechaActual();
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setMensaje("Cada paciente cuenta");
-      setCargando(false);
-    }, 1500);
-
-    return () => clearTimeout(timeout);
-  }, []);
-
-  const {
-    totalHoy,
-    solicitudesPendientes,
-    solicitudesFinalizadas,
-    solicitudesEnAtencion,
-  } = useSolicitudes();
+  const { fechaActual, resumen } = useAgendaHoy();
+  if (sesion.estado !== "lista" || sesion.usuario.rol !== "admin") return null;
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1"
+    <HomeScreen
+      nombre={nombreUsuario(sesion.usuario)}
+      abrirPerfil={() => navigation.openDrawer()}
+      areaSegura="sinVertical"
+      conFondo={false}
     >
-      <ScreenLayout
-        style={{ justifyContent: "flex-start", padding: 0 }}
-        areaSegura="sinVertical"
-        conFondo={false}
+      <HomeWelcome mensaje="Cada paciente cuenta" descripcion="Aquí podrás administrar las citas" />
+      <View
+        className="mb-8 mt-5 w-full rounded-3xl border px-4 pb-7 pt-6 shadow-lg shadow-black/30 elevation-8"
+        style={{ backgroundColor: theme.form, borderColor: theme.border }}
       >
-        {cargando || (!fuenteCargada && !errorFuente) ? (
-          <HomeWaiting fullScreen />
-        ) : (
-          <>
-            <AppHeader
-              nombre="Admin"
-              isHome={true}
-              onProfilePress={() => navigation.openDrawer()}
-            />
-            <ScrollView
-              className="flex-1"
-              contentContainerStyle={{ padding: 16, paddingTop: 32 }}
-            >
-              <HomeWelcome mensaje={mensaje} />
-              <View
-                className="mb-8 mt-5 w-full rounded-3xl border px-4 pb-7 pt-6 shadow-lg shadow-black/30 elevation-8 "
-                style={{
-                  backgroundColor: theme.form,
-                  borderColor: theme.border,
-                }}
-              >
-                <Text
-                  className="text-center text-2xl font-extrabold"
-                  style={{ color: theme.title }}
-                  numberOfLines={1}
-                  adjustsFontSizeToFit
-                  minimumFontScale={0.85}
-                  accessibilityRole="header"
-                >
-                  Agenda de Hoy
-                </Text>
-                <HomeDate
-                  fechaActual={fechaActual}
-                  textColor={theme.textSecondary}
-                />
+        <Text
+          className="text-center text-2xl font-extrabold"
+          style={{ color: theme.title }}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.85}
+          accessibilityRole="header"
+        >
+          Agenda de Hoy
+        </Text>
+        <HomeDate fechaActual={fechaActual} textColor={theme.textSecondary} />
+        <HomeSummary {...resumen} />
+      </View>
 
-                <HomeSumary
-                  totalHoy={totalHoy}
-                  solicitudesPendientes={solicitudesPendientes}
-                  solicitudesEnAtencion={solicitudesEnAtencion}
-                  solicitudesFinalizadas={solicitudesFinalizadas}
-                />
-              </View>
-
-              <View className="flex-col items-center justify-center gap-3 px-12">
-                <HomeModuleCard
-                  title="Todas las citas"
-                  iconName="document-text-outline"
-                  onPress={() =>
-                    router.navigate({
-                      pathname: "/solicitudes",
-                      params: {
-                        filtro: "",
-                        estado: "",
-                        fecha: "",
-                        servicio: "",
-                        prioridad: "",
-                      },
-                    })
-                  }
-                />
-
-                <HomeModuleCard
-                  title="Nueva Cita"
-                  iconName="add-circle-outline"
-                  onPress={() => router.push("/solicitudes/nuevo")}
-                />
-
-                <HomeModuleCard
-                  title="Veterinarios"
-                  iconName="people-outline"
-                  onPress={() => router.push("/veterinarios/veterinarios")}
-                />
-              </View>
-            </ScrollView>
-          </>
-        )}
-      </ScreenLayout>
-    </KeyboardAvoidingView>
+      <View className="flex-col items-center justify-center gap-3 px-12">
+        <HomeModuleCard
+          title="Todas las citas" iconName="document-text-outline" onPress={() => abrirCitasAdmin()}
+        />
+        <HomeModuleCard
+          title="Nueva cita" iconName="add-circle-outline" onPress={() => router.push("/solicitudes/nuevo")}
+        />
+        <HomeModuleCard
+          title="Veterinarios" iconName="people-outline" onPress={() => router.push("/veterinarios/veterinarios")}
+        />
+      </View>
+    </HomeScreen>
   );
 }

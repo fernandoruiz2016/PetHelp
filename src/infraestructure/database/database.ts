@@ -1,5 +1,7 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
+export const NOMBRE_BASE_DATOS = 'vethelp.db';
+
 export async function inicializarBaseDatos(db: SQLiteDatabase) {
     await db.execAsync('PRAGMA journal_mode = WAL;');
 
@@ -30,5 +32,9 @@ export async function inicializarBaseDatos(db: SQLiteDatabase) {
         if (!columnas.some(({ name }) => name === 'veterinarioId')) {
             await txn.execAsync('ALTER TABLE solicitudes ADD COLUMN veterinarioId INTEGER;');
         }
+        await txn.execAsync(`
+            CREATE INDEX IF NOT EXISTS idx_solicitudes_cliente_fecha ON solicitudes (clienteId, fechaCita);
+            CREATE INDEX IF NOT EXISTS idx_solicitudes_fecha ON solicitudes (fechaCita);
+        `);
     });
 }

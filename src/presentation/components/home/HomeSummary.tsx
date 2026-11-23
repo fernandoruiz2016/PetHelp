@@ -1,5 +1,5 @@
 import { useTheme } from "@/presentation/context/ThemeContext";
-import { router } from "expo-router";
+import { abrirCitasAdmin } from "@/presentation/navigation/agenda";
 import { View } from "react-native";
 import { HomeSumaryCard } from "./HomeSummaryCard";
 
@@ -10,7 +10,7 @@ interface HomeSummaryProps {
   solicitudesFinalizadas: number;
 }
 
-export const HomeSumary = ({
+export const HomeSummary = ({
   totalHoy,
   solicitudesPendientes,
   solicitudesEnAtencion,
@@ -23,22 +23,15 @@ export const HomeSumary = ({
       <View className="flex-row gap-3">
         <HomeSumaryCard
           title="Citas de hoy"
-          onPress={() =>
-            router.push({ pathname: "/solicitudes", params: { filtro: "hoy" } })
-          }
+          onPress={() => abrirCitasAdmin("hoy")}
           value={String(totalHoy)}
           icon="document-text-outline"
           color={theme.primary}
           backgroundColor={theme.primarySoft}
         />
         <HomeSumaryCard
-          title="Pendientes "
-          onPress={() =>
-            router.push({
-              pathname: "/solicitudes",
-              params: { filtro: "pendientes" },
-            })
-          }
+          title="Pendientes"
+          onPress={() => abrirCitasAdmin("pendientes")}
           value={String(solicitudesPendientes)}
           icon="calendar"
           color={theme.accent}
@@ -49,12 +42,7 @@ export const HomeSumary = ({
       <View className="flex-row gap-3">
         <HomeSumaryCard
           title="En Atención"
-          onPress={() =>
-            router.push({
-              pathname: "/solicitudes",
-              params: { filtro: "en_atencion" },
-            })
-          }
+          onPress={() => abrirCitasAdmin("en_atencion")}
           value={String(solicitudesEnAtencion)}
           icon="hourglass"
           color={theme.primary}
@@ -62,12 +50,7 @@ export const HomeSumary = ({
         />
         <HomeSumaryCard
           title="Finalizadas"
-          onPress={() =>
-            router.push({
-              pathname: "/solicitudes",
-              params: { filtro: "finalizadas" },
-            })
-          }
+          onPress={() => abrirCitasAdmin("finalizadas")}
           value={String(solicitudesFinalizadas)}
           icon="checkmark"
           color={theme.success}

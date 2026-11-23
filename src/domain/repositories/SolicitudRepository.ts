@@ -1,7 +1,12 @@
 import type { Solicitud, SolicitudFormData } from '../models/Solicitud';
+import type { Usuario } from '../models/Usuario';
 
 export interface SolicitudRepository {
   listar(): Promise<Solicitud[]>;
+  listarPorCliente(clienteId: Usuario['uid']): Promise<Solicitud[]>;
+  buscarPorCliente(id: Solicitud['id'], clienteId: Usuario['uid']): Promise<Solicitud | null>;
+  horasOcupadas(fecha: string): Promise<number[]>;
+  reservarParaCliente(dto: SolicitudFormData, clienteId: Usuario['uid']): Promise<Solicitud>;
   crear(
     dto: SolicitudFormData,
     codigo: string,

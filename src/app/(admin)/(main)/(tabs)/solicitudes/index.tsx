@@ -9,16 +9,10 @@ import {
 import { SolicitudSearch } from "@/presentation/components/shared/SolicitudSearch";
 import { SolicitudesList } from "@/presentation/components/shared/SolicitudesList";
 import { useSolicitudes } from "@/presentation/context/SolicitudesContext";
+import { esFiltroResumenCitas, estadosDeInicio } from "@/presentation/navigation/agenda";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { KeyboardAvoidingView, Platform } from "react-native";
-
-const estadosDeInicio: Record<string, FiltrosSolicitud["estado"]> = {
-  hoy: "TODAS",
-  pendientes: "PENDIENTE",
-  en_atencion: "EN_ATENCION",
-  finalizadas: "FINALIZADO",
-};
 
 const titulosPorEstado: Record<FiltrosSolicitud["estado"], string> = {
   TODAS: "Citas",
@@ -68,9 +62,7 @@ export default function SolicitudesRoute() {
   const termino = normalizarBusqueda(busqueda);
   const hoy = new Date().toDateString();
 
-  const filtroDeInicio =
-    typeof filtro === "string" &&
-    Object.prototype.hasOwnProperty.call(estadosDeInicio, filtro);
+  const filtroDeInicio = esFiltroResumenCitas(filtro);
 
   const filtros: FiltrosSolicitud = filtroDeInicio
     ? {

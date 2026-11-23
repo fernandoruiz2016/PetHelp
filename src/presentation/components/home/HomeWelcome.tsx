@@ -3,9 +3,10 @@ import { Image, Text, View } from "react-native";
 
 interface HomeWelcomeProps {
   mensaje: string;
+  descripcion: string;
 }
 
-export const HomeWelcome = ({ mensaje }: HomeWelcomeProps) => {
+export const HomeWelcome = ({ mensaje, descripcion }: HomeWelcomeProps) => {
   const { theme } = useTheme();
 
   return (
@@ -25,7 +26,7 @@ export const HomeWelcome = ({ mensaje }: HomeWelcomeProps) => {
         </Text>
 
         <Text className="text-base" style={{ color: theme.textSecondary }}>
-          Aquí podrás administrar las citas
+          {descripcion}
         </Text>
       </View>
 

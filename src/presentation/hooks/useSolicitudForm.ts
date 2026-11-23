@@ -1,5 +1,5 @@
 import { TipoServicio } from "@/domain/enums/TipoServicio";
-import { SolicitudFormData } from "@/domain/models/Solicitud";
+import type { SolicitudFormData } from "@/domain/models/Solicitud";
 import { useState } from "react";
 
 type FormErrors = Partial<Record<keyof SolicitudFormData | "horaCita", string>>;
@@ -17,12 +17,12 @@ const valoresVacios: SolicitudFormData = {
 };
 
 export function useSolicitudForm(
-  initialValues: SolicitudFormData = valoresVacios,
+  initialValues?: Partial<SolicitudFormData>,
 ) {
-  const [form, setForm] = useState<SolicitudFormData>(initialValues);
+  const [form, setForm] = useState<SolicitudFormData>(() => ({ ...valoresVacios, ...initialValues }));
   const [errors, setErrors] = useState<FormErrors>({});
   const [horaSeleccionada, setHoraSeleccionada] = useState(
-    Boolean(initialValues.fechaCita),
+    Boolean(initialValues?.fechaCita),
   );
 
   const actualizarCampo = (campo: keyof SolicitudFormData, valor: string) => {

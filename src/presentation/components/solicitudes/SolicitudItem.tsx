@@ -12,11 +12,13 @@ import { Pressable, Text, View } from "react-native";
 interface SolicitudItemProps {
   solicitud: Solicitud;
   onVerDetalles: (id: string) => void;
+  mostrarPrioridad?: boolean;
 }
 
 export function SolicitudItem({
   solicitud,
   onVerDetalles,
+  mostrarPrioridad = true,
 }: SolicitudItemProps) {
   const { theme } = useTheme();
   const fechaCita = new Date(solicitud.fechaCita);
@@ -103,7 +105,7 @@ export function SolicitudItem({
 
             <View className="flex-row flex-wrap gap-2">
               <EstadoChip estado={solicitud.estado} />
-              <PrioridadChip prioridad={solicitud.prioridad} />
+              {mostrarPrioridad && <PrioridadChip prioridad={solicitud.prioridad} />}
             </View>
 
             <Text

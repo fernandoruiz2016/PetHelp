@@ -49,7 +49,7 @@ export function AppHeader({
           )}
 
           <View className="flex-1 flex-row items-center justify-center">
-            <View className="ml-5">
+            <View className="ml-5 min-w-0 shrink">
               <Text
                 className="text-m font-semibold"
                 style={{ color: theme.title }}

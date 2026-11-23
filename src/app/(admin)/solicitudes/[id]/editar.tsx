@@ -20,7 +20,7 @@ import {
 
 export default function EditarSolicitudRoute() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { buscar, actualizar } = useSolicitudes();
+  const { buscar, actualizar, solicitudes } = useSolicitudes();
   const { theme } = useTheme();
   const navigation = useNavigation();
   const solicitud = buscar(Number(id));
@@ -70,6 +70,7 @@ export default function EditarSolicitudRoute() {
                 style={{ backgroundColor: theme.background }}
               >
                 <SolicitudForm
+                  citas={solicitudes}
                   initialValues={solicitud}
                   solicitudId={solicitud.id}
                   submitLabel="Actualizar"

@@ -12,6 +12,7 @@ import { Text, View } from "react-native";
 
 interface SolicitudDetalleProps {
   solicitud: Solicitud;
+  modo?: "admin" | "cliente";
 }
 
 type IconName = ComponentProps<typeof Ionicons>["name"];
@@ -58,8 +59,9 @@ function InfoRow({
   );
 }
 
-export function SolicitudDetalle({ solicitud }: SolicitudDetalleProps) {
+export function SolicitudDetalle({ solicitud, modo = "admin" }: SolicitudDetalleProps) {
   const { theme } = useTheme();
+  const esAdmin = modo === "admin";
   const fechaCita = new Date(solicitud.fechaCita);
   const fechaRegistro = new Date(solicitud.fechaRegistro);
 
@@ -99,23 +101,25 @@ export function SolicitudDetalle({ solicitud }: SolicitudDetalleProps) {
         </View>
 
         <View className="mt-5 flex-row items-start">
-          <View className="w-1/3 min-w-0 gap-1 pr-2">
+          <View className={esAdmin ? "w-1/3 min-w-0 gap-1 pr-2" : "min-w-0 flex-1 gap-1 pr-2"}>
             <Text className="text-xs" style={{ color: theme.textSecondary }}>
               Servicio
             </Text>
             <ServicioLabel servicio={solicitud.tipoServicio} />
           </View>
-          <View
-            className="w-1/3 min-w-0 items-center gap-1 border-x px-2"
-            style={{ borderColor: theme.border }}
-          >
-            <Text className="text-xs" style={{ color: theme.textSecondary }}>
-              Prioridad
-            </Text>
-            <View className="self-center">
-              <PrioridadChip prioridad={solicitud.prioridad} />
+          {esAdmin && (
+            <View
+              className="w-1/3 min-w-0 items-center gap-1 border-x px-2"
+              style={{ borderColor: theme.border }}
+            >
+              <Text className="text-xs" style={{ color: theme.textSecondary }}>
+                Prioridad
+              </Text>
+              <View className="self-center">
+                <PrioridadChip prioridad={solicitud.prioridad} />
+              </View>
             </View>
-          </View>
+          )}
           <View className="w-1/3 min-w-0 items-end gap-1 pl-2">
             <Text className="text-xs" style={{ color: theme.textSecondary }}>
               Código
@@ -162,46 +166,37 @@ export function SolicitudDetalle({ solicitud }: SolicitudDetalleProps) {
             })}
           />
         </View>
-        <View className="border-t" style={{ borderColor: theme.border }} />
-        <View className="grow flex-row items-center py-4">
-          <InfoRow
-            icono="person-outline"
-            etiqueta="Cliente"
-            valor={solicitud.clienteNombre}
-          />
-          <View
-            className="mx-3 border-l"
-            style={{ borderColor: theme.border }}
-          />
-          <InfoRow
-            icono="call-outline"
-            etiqueta="Teléfono"
-            valor={solicitud.telefono}
-          />
-        </View>
-        <View className="border-t" style={{ borderColor: theme.border }} />
-        <View className="grow justify-center py-4">
-          <InfoRow
-            icono="medkit-outline"
-            etiqueta="Veterinario"
-            valor={
-              solicitud.veterinarioId === undefined
-                ? "Sin asignar"
-                : `Veterinario #${solicitud.veterinarioId}`
-            }
-          />
-        </View>
-        <View className="border-t" style={{ borderColor: theme.border }} />
-        <Text className="pt-3 text-xs" style={{ color: theme.textSecondary }}>
-          Registrada:{" "}
-          {formatearFecha(fechaRegistro, {
-            day: "numeric",
-            month: "long",
-            year: "numeric",
-            hour: "numeric",
-            minute: "2-digit",
-          })}
-        </Text>
+        {esAdmin && (
+          <>
+            <View className="border-t" style={{ borderColor: theme.border }} />
+            <View className="grow flex-row items-center py-4">
+              <InfoRow icono="person-outline" etiqueta="Cliente" valor={solicitud.clienteNombre} />
+              <View className="mx-3 border-l" style={{ borderColor: theme.border }} />
+              <InfoRow icono="call-outline" etiqueta="Teléfono" valor={solicitud.telefono} />
+            </View>
+            <View className="border-t" style={{ borderColor: theme.border }} />
+            <View className="grow justify-center py-4">
+              <InfoRow
+                icono="medkit-outline"
+                etiqueta="Veterinario"
+                valor={solicitud.veterinarioId === undefined
+                  ? "Sin asignar"
+                  : `Veterinario #${solicitud.veterinarioId}`}
+              />
+            </View>
+            <View className="border-t" style={{ borderColor: theme.border }} />
+            <Text className="pt-3 text-xs" style={{ color: theme.textSecondary }}>
+              Registrada:{" "}
+              {formatearFecha(fechaRegistro, {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+              })}
+            </Text>
+          </>
+        )}
       </View>
     </View>
   );

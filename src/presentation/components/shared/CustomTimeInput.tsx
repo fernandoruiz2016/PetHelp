@@ -1,64 +1,28 @@
-import type { Solicitud } from "@/domain/models/Solicitud";
+import { HORAS_CITA } from "@/domain/services/horariosCita";
 import { useTheme } from "@/presentation/context/ThemeContext";
-import { useMemo } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 interface CustomTimeInputProps {
   value: string;
   onChange: (fecha: string) => void;
   horaSeleccionada: boolean;
-  citas: Solicitud[];
-  excluirSolicitudId?: Solicitud["id"];
+  horasOcupadas: number[];
+  disabled?: boolean;
   error?: string;
 }
-
-const HORAS = Array.from({ length: 10 }, (_, i) => i + 8);
 
 export default function CustomTimeInput({
   value,
   onChange,
   horaSeleccionada,
-  citas,
-  excluirSolicitudId,
+  horasOcupadas,
+  disabled = false,
   error,
 }: CustomTimeInputProps) {
   const { theme } = useTheme();
 
   const fechaBase = value ? new Date(value) : new Date();
-
-  const horasOcupadas = useMemo(() => {
-    if (!value) return [];
-
-    const ahora = new Date();
-
-    const horasConCita = citas
-      .filter(
-        (cita) => cita.estado !== "CANCELADA" && cita.id !== excluirSolicitudId,
-      )
-      .filter((cita) => {
-        const fecha = new Date(cita.fechaCita);
-        return (
-          fecha.getFullYear() === fechaBase.getFullYear() &&
-          fecha.getMonth() === fechaBase.getMonth() &&
-          fecha.getDate() === fechaBase.getDate()
-        );
-      })
-      .map((cita) => new Date(cita.fechaCita).getHours());
-
-    const horasPasadas =
-      fechaBase.toDateString() === ahora.toDateString()
-        ? Array.from({ length: ahora.getHours() - 7 }, (_, i) => i + 8)
-        : [];
-
-    return [...new Set([...horasConCita, ...horasPasadas])];
-  }, [
-    citas,
-    excluirSolicitudId,
-    value,
-    fechaBase.getFullYear(),
-    fechaBase.getMonth(),
-    fechaBase.getDate(),
-  ]);
+  const ahora = Date.now();
 
   const horaActualSeleccionada =
     horaSeleccionada && value ? new Date(value).getHours() : -1;
@@ -81,9 +45,10 @@ export default function CustomTimeInput({
         </Text>
       ) : (
         <View className="flex-row flex-wrap gap-2">
-          {HORAS.map((hora) => {
+          {HORAS_CITA.map((hora) => {
             const seleccionada = horaActualSeleccionada === hora;
-            const ocupada = !seleccionada && horasOcupadas.includes(hora);
+            const horaProgramada = new Date(fechaBase).setHours(hora, 0, 0, 0);
+            const ocupada = disabled || (!seleccionada && (horasOcupadas.includes(hora) || horaProgramada <= ahora));
 
             const etiqueta = new Date(2000, 0, 1, hora).toLocaleTimeString(
               "es-PE",

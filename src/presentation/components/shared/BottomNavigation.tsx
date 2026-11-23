@@ -72,7 +72,7 @@ export function BottomNavigation({
         onPress={onCitasPress}
         activeOpacity={0.7}
         accessibilityRole="tab"
-        accessibilityLabel="Ver todas las citas"
+        accessibilityLabel="Todas las citas"
         aria-selected={selectedTab === "citas"}
       >
         <Ionicons

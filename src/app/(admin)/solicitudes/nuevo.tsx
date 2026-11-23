@@ -13,7 +13,7 @@ import {
 } from "react-native";
 export default function SolicitudesRoute() {
   const { theme } = useTheme();
-  const { crear } = useSolicitudes();
+  const { crear, solicitudes } = useSolicitudes();
   const navigation = useNavigation();
   return (
     <KeyboardAvoidingView
@@ -34,6 +34,7 @@ export default function SolicitudesRoute() {
               style={{ backgroundColor: theme.background }}
             >
               <SolicitudForm
+                citas={solicitudes}
                 submitLabel="Realizar Solicitud"
                 onSubmit={async (datos) => {
                   await crear(datos);

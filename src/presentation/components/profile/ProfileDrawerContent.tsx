@@ -1,4 +1,6 @@
+import { useAuth } from "@/presentation/context/AuthContext";
 import { useTheme } from "@/presentation/context/ThemeContext";
+import { nombreUsuario } from "@/presentation/utils/nombreUsuario";
 import { Ionicons } from "@expo/vector-icons";
 import {
   DrawerContentScrollView,
@@ -8,6 +10,8 @@ import { Image, Pressable, Switch, Text, View } from "react-native";
 
 export function ProfileDrawerContent(props: DrawerContentComponentProps) {
   const { colorScheme, theme, toggleTheme } = useTheme();
+  const { sesion } = useAuth();
+  const usuario = sesion.estado === "lista" ? sesion.usuario : null;
   const modoOscuro = colorScheme === "dark";
 
   return (
@@ -46,9 +50,14 @@ export function ProfileDrawerContent(props: DrawerContentComponentProps) {
             resizeMode="cover"
             accessible={false}
           />
-          <Text className="text-2xl font-bold" style={{ color: theme.text }}>
-            Admin
-          </Text>
+          {usuario && (
+            <View className="w-full gap-1">
+              <Text className="text-2xl font-bold" style={{ color: theme.text }}>
+                {nombreUsuario(usuario)}
+              </Text>
+              <Text style={{ color: theme.textSecondary }} selectable>{usuario.email}</Text>
+            </View>
+          )}
         </View>
 
         <View className="mb-6 border-t" style={{ borderColor: theme.border }} />
