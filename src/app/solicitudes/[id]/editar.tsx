@@ -1,13 +1,18 @@
+import { veterinarioRepository } from "@/infraestructure/repositories/veterinarioRepository";
 import { AppHeader } from "@/presentation/components/shared/AppHeader";
+import { CustomSelectInput } from "@/presentation/components/shared/CustomSelectInput";
 import { ScreenLayout } from "@/presentation/components/shared/ScreenLayout";
 import { SolicitudForm } from "@/presentation/components/solicitudes/SolicitudForm";
 import { useSolicitudes } from "@/presentation/context/SolicitudesContext";
 import { useTheme } from "@/presentation/context/ThemeContext";
-import { router, useLocalSearchParams } from "expo-router";
+import { useVeterinarioApi } from "@/presentation/hooks/useVeterinarioApi";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import { useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Pressable,
   ScrollView,
   Text,
   View,
@@ -17,7 +22,33 @@ export default function EditarSolicitudRoute() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { buscar, actualizar } = useSolicitudes();
   const { theme } = useTheme();
+  const navigation = useNavigation();
   const solicitud = buscar(Number(id));
+  const [asignacion, setAsignacion] = useState<number | null>();
+  const { veterinarios, loading, error, loadVeterinarios } =
+    useVeterinarioApi(veterinarioRepository);
+
+  const veterinarioActual = solicitud?.veterinarioId;
+  const veterinarioSeleccionado =
+    asignacion === undefined ? veterinarioActual : asignacion;
+  const opcionesVeterinarios = [{ value: "", label: "Sin asignar" }];
+  for (const veterinario of veterinarios) {
+    if (veterinario.activo !== false || veterinario.id === veterinarioActual) {
+      opcionesVeterinarios.push({
+        value: String(veterinario.id),
+        label: `${veterinario.firstName} ${veterinario.lastName}`.trim(),
+      });
+    }
+  }
+  if (
+    veterinarioActual !== undefined &&
+    !opcionesVeterinarios.some(({ value }) => value === String(veterinarioActual))
+  ) {
+    opcionesVeterinarios.push({
+      value: String(veterinarioActual),
+      label: `Veterinario #${veterinarioActual}`,
+    });
+  }
 
   return (
     <KeyboardAvoidingView
@@ -42,15 +73,40 @@ export default function EditarSolicitudRoute() {
                   initialValues={solicitud}
                   solicitudId={solicitud.id}
                   submitLabel="Actualizar"
-                  onSubmit={(datos) => {
-                    actualizar(solicitud.id, datos);
-                    Alert.alert(
-                      "Registro actualizado",
-                      "Los cambios se han guardado",
-                    );
-                    router.back();
+                  onSubmit={async (datos) => {
+                    await actualizar(solicitud.id, datos, asignacion);
+                    if (!navigation.isFocused()) return;
+
+                    if (router.canGoBack()) router.back();
+                    else router.replace("/solicitudes");
+                    Alert.alert("Cita actualizada", "Los cambios se han guardado.");
                   }}
-                />
+                >
+                  <CustomSelectInput
+                    label="Veterinario asignado"
+                    value={veterinarioSeleccionado?.toString() ?? ""}
+                    options={opcionesVeterinarios}
+                    onValueChange={(value) =>
+                      setAsignacion(value === "" ? null : Number(value))
+                    }
+                  />
+                  {loading && (
+                    <Text className="mb-3" style={{ color: theme.textSecondary }}>
+                      Cargando veterinarios…
+                    </Text>
+                  )}
+                  {error && (
+                    <Pressable
+                      className="mb-3 py-2"
+                      accessibilityRole="button"
+                      onPress={loadVeterinarios}
+                    >
+                      <Text style={{ color: theme.primary }}>
+                        No se pudo cargar la lista. Reintentar
+                      </Text>
+                    </Pressable>
+                  )}
+                </SolicitudForm>
               </View>
             </View>
           </ScrollView>

@@ -73,11 +73,15 @@ export function useSolicitudForm(
     if (!validar()) return null;
 
     return {
-      ...form,
       clienteNombre: form.clienteNombre.trim(),
       telefono: form.telefono.trim(),
       mascotaNombre: form.mascotaNombre.trim(),
+      especieMascota: form.especieMascota,
+      tipoServicio: form.tipoServicio,
+      prioridad: form.prioridad,
       descripcion: form.descripcion.trim(),
+      estado: form.estado,
+      fechaCita: form.fechaCita,
     };
   };
 

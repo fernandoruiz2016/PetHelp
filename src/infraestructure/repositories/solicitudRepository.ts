@@ -1,16 +1,21 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
-import type { Solicitud, SolicitudFormData } from '../../domain/models/Solicitud';
+import type { Solicitud } from '../../domain/models/Solicitud';
 import type { SolicitudRepository } from '../../domain/repositories/SolicitudRepository';
+
+type SolicitudSQLite = Omit<Solicitud, 'clienteId' | 'veterinarioId'> & {
+    clienteId: string | null;
+    veterinarioId: number | null;
+};
 
 export function createSolicitudRepository(db: SQLiteDatabase): SolicitudRepository {
     return {
-        async listar(): Promise<Solicitud[]> {
-            console.log('Listando solicitudes');
-
-            return db.getAllAsync<Solicitud>(`
+        async listar() {
+            const filas = await db.getAllAsync<SolicitudSQLite>(`
             SELECT
                 id,
                 codigo,
+                clienteId,
+                veterinarioId,
                 clienteNombre,
                 telefono,
                 mascotaNombre,
@@ -24,14 +29,20 @@ export function createSolicitudRepository(db: SQLiteDatabase): SolicitudReposito
             FROM solicitudes
             ORDER BY id DESC;
             `);
+            return filas.map(({ clienteId, veterinarioId, ...datos }) => ({
+                ...datos,
+                clienteId: clienteId ?? undefined,
+                veterinarioId: veterinarioId ?? undefined,
+            }));
         },
 
-        async crear(dto: SolicitudFormData, codigo: string): Promise<Solicitud> {
+        async crear(dto, codigo, clienteId) {
             const fechaRegistro = new Date().toISOString();
             const result = await db.runAsync(
                 `
                 INSERT INTO solicitudes (
                     codigo,
+                    clienteId,
                     clienteNombre,
                     telefono,
                     mascotaNombre,
@@ -43,27 +54,32 @@ export function createSolicitudRepository(db: SQLiteDatabase): SolicitudReposito
                     fechaCita,
                     fechaRegistro
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                VALUES (
+                    $codigo, $clienteId, $clienteNombre, $telefono, $mascotaNombre,
+                    $especieMascota, $tipoServicio, $prioridad, $descripcion,
+                    'PENDIENTE', $fechaCita, $fechaRegistro
+                );
                 `,
-                [
-                    codigo,
-                    dto.clienteNombre,
-                    dto.telefono,
-                    dto.mascotaNombre,
-                    dto.especieMascota,
-                    dto.tipoServicio,
-                    dto.prioridad,
-                    dto.descripcion,
-                    'PENDIENTE',
-                    dto.fechaCita,
-                    fechaRegistro
-                ]
+                {
+                    $codigo: codigo,
+                    $clienteId: clienteId ?? null,
+                    $clienteNombre: dto.clienteNombre,
+                    $telefono: dto.telefono,
+                    $mascotaNombre: dto.mascotaNombre,
+                    $especieMascota: dto.especieMascota,
+                    $tipoServicio: dto.tipoServicio,
+                    $prioridad: dto.prioridad,
+                    $descripcion: dto.descripcion,
+                    $fechaCita: dto.fechaCita,
+                    $fechaRegistro: fechaRegistro,
+                }
             );
 
             const nuevaSolicitud: Solicitud = {
                 ...dto,
                 id: result.lastInsertRowId,
                 codigo,
+                clienteId,
                 estado: 'PENDIENTE',
                 fechaRegistro
             };
@@ -71,13 +87,12 @@ export function createSolicitudRepository(db: SQLiteDatabase): SolicitudReposito
             return nuevaSolicitud;
         },
 
-        async actualizar(id: number, datos: SolicitudFormData): Promise<void> {
-            console.log('Actulizando registro', { id, datos });
-
-            await db.runAsync(
+        async actualizar(id, datos, veterinarioId) {
+            const resultado = await db.runAsync(
                 `
                 UPDATE solicitudes
                 SET
+                    veterinarioId = CASE WHEN ? THEN ? ELSE veterinarioId END,
                     clienteNombre = ?,
                     telefono = ?,
                     mascotaNombre = ?,
@@ -88,31 +103,34 @@ export function createSolicitudRepository(db: SQLiteDatabase): SolicitudReposito
                     estado = ?,
                     fechaCita = ?
                 WHERE id = ?;
-            `,
-            [
-                datos.clienteNombre,
-                datos.telefono,
-                datos.mascotaNombre,
-                datos.especieMascota,
-                datos.tipoServicio,
-                datos.prioridad,
-                datos.descripcion,
-                datos.estado,
-                datos.fechaCita,
-                id
-            ]
-        );
+                `,
+                [
+                    veterinarioId !== undefined,
+                    veterinarioId ?? null,
+                    datos.clienteNombre,
+                    datos.telefono,
+                    datos.mascotaNombre,
+                    datos.especieMascota,
+                    datos.tipoServicio,
+                    datos.prioridad,
+                    datos.descripcion,
+                    datos.estado,
+                    datos.fechaCita,
+                    id,
+                ],
+            );
+            if (resultado.changes === 0) throw new Error('La cita ya no existe.');
         },
 
-        async eliminar(id: number): Promise<void> {
-            console.log('Eliminado solicitud', { id });
-            await db.runAsync(
+        async eliminar(id) {
+            const resultado = await db.runAsync(
                 `
                 DELETE FROM solicitudes
                 WHERE id=?;
                 `,
                 [id],
-            )
+            );
+            if (resultado.changes === 0) throw new Error('La cita ya no existe.');
         }
     }
 

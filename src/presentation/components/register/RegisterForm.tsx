@@ -12,8 +12,8 @@ export function RegisterForm({ onShowLogin }: RegisterFormProps) {
   const {
     nombre,
     setNombre,
-    user,
-    setUser,
+    apellidos,
+    setApellidos,
     email,
     setEmail,
     phone,
@@ -30,9 +30,9 @@ export function RegisterForm({ onShowLogin }: RegisterFormProps) {
   return (
     <View>
       <CustomTextInput
-        label="Nombre Completo"
+        label="Nombres"
         iconName="person-circle-outline"
-        placeholder="Ej. Juan Pérez"
+        placeholder="Ej. Juan Carlos"
         value={nombre}
         onChangeText={setNombre}
         autoCapitalize="words"
@@ -40,14 +40,13 @@ export function RegisterForm({ onShowLogin }: RegisterFormProps) {
       />
 
       <CustomTextInput
-        label="Nombre de Usuario"
+        label="Apellidos"
         iconName="person-outline"
-        placeholder="Ej. username"
-        value={user}
-        onChangeText={setUser}
-        autoCapitalize="none"
-        autoCorrect={false}
-        error={errors.user}
+        placeholder="Ej. Pérez García"
+        value={apellidos}
+        onChangeText={setApellidos}
+        autoCapitalize="words"
+        error={errors.apellidos}
       />
 
       <CustomTextInput
@@ -56,7 +55,7 @@ export function RegisterForm({ onShowLogin }: RegisterFormProps) {
         placeholder="Número de teléfono"
         value={phone}
         onChangeText={setPhone}
-        keyboardType="numeric"
+        keyboardType="phone-pad"
         autoCapitalize="none"
         autoCorrect={false}
         error={errors.phone}
@@ -70,6 +69,7 @@ export function RegisterForm({ onShowLogin }: RegisterFormProps) {
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
+        autoCorrect={false}
         error={errors.email}
       />
 

@@ -1,7 +1,5 @@
-import { Solicitud, SolicitudFormData } from "@/domain/models/Solicitud";
+import type { Solicitud, SolicitudFormData } from "@/domain/models/Solicitud";
 import { generarCodigoCita } from "@/domain/services/generarCodigoCita";
-
-
 import { createSolicitudRepository } from "@/infraestructure/repositories/solicitudRepository";
 import { useSQLiteContext } from "expo-sqlite";
 import {
@@ -17,8 +15,12 @@ import { solicitudesReducer } from "../reducers/SolicitudesReducer";
 
 interface SolicitudesContextValue {
   solicitudes: Solicitud[];
-  crear: (data: SolicitudFormData) => Promise<void>;
-  actualizar: (id: number, datos: SolicitudFormData) => Promise<void>;
+  crear: (data: SolicitudFormData, clienteId?: Solicitud["clienteId"]) => Promise<void>;
+  actualizar: (
+    id: number,
+    datos: SolicitudFormData,
+    veterinarioId?: Solicitud["veterinarioId"] | null,
+  ) => Promise<void>;
   eliminar: (id: number) => Promise<void>;
   buscar: (id: number) => Solicitud | undefined;
 }
@@ -37,11 +39,15 @@ export function SolicitudProvider({ children }: PropsWithChildren) {
 
   const [solicitudes, dispatch] = useReducer(solicitudesReducer, []);
   const codigosReservados = useRef(new Set<string>());
+  const cargaInicial = useRef<Promise<void> | undefined>(undefined);
 
   useEffect(() => {
+    let vigente = true;
+
     async function loadInitialData() {
       try {
         const data = await repository.listar();
+        if (!vigente) return;
 
         data.forEach((solicitud) =>
           codigosReservados.current.add(solicitud.codigo),
@@ -56,34 +62,45 @@ export function SolicitudProvider({ children }: PropsWithChildren) {
       }
     }
 
-    loadInitialData();
+    cargaInicial.current = loadInitialData();
+    return () => {
+      vigente = false;
+    };
   }, [repository]);
 
-  const crear = async (datos: SolicitudFormData) => {
+  const crear = async (
+    datos: SolicitudFormData,
+    clienteId?: Solicitud["clienteId"],
+  ) => {
+    await cargaInicial.current;
+    const codigo = generarCodigoCita(codigosReservados.current);
+    codigosReservados.current.add(codigo);
+
     try {
-      const codigo = generarCodigoCita(codigosReservados.current);
-
-      const nuevaSolicitud = await repository.crear(datos, codigo);
-
-      codigosReservados.current.add(codigo);
+      const nuevaSolicitud = await repository.crear(datos, codigo, clienteId);
 
       dispatch({
         type: "CREAR",
         payload: nuevaSolicitud,
       });
     } catch (error) {
+      codigosReservados.current.delete(codigo);
       console.error("Error al crear solicitud:", error);
       throw error;
     }
   };
 
-  const actualizar = async (id: number, datos: SolicitudFormData) => {
+  const actualizar = async (
+    id: number,
+    datos: SolicitudFormData,
+    veterinarioId?: Solicitud["veterinarioId"] | null,
+  ) => {
     try {
-      await repository.actualizar(id, datos);
+      await repository.actualizar(id, datos, veterinarioId);
 
       dispatch({
         type: "ACTUALIZAR",
-        payload: { id, datos },
+        payload: { id, datos, veterinarioId },
       });
     } catch (error) {
       console.error("Error al actualizar solicitud:", error);

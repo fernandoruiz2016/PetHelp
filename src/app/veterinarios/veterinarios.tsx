@@ -1,4 +1,3 @@
-import type { Veterinario } from "@/domain/models/Veterinario";
 import { veterinarioRepository } from "@/infraestructure/repositories/veterinarioRepository";
 import { AppHeader } from "@/presentation/components/shared/AppHeader";
 import { ScreenLayout } from "@/presentation/components/shared/ScreenLayout";
@@ -6,7 +5,6 @@ import { VeterinarioItem } from "@/presentation/components/veterinarios/Veterina
 import { useTheme } from "@/presentation/context/ThemeContext";
 import { useVeterinarioApi } from "@/presentation/hooks/useVeterinarioApi";
 import { Ionicons } from "@expo/vector-icons";
-import { useMemo } from "react";
 import {
     ActivityIndicator,
     FlatList,
@@ -27,14 +25,6 @@ export default function VeterinariosScreen() {
         loadVeterinarios,
     } = useVeterinarioApi(veterinarioRepository);
 
-    const lista: Veterinario[] = useMemo(() => {
-        if (Array.isArray(veterinarios)) return veterinarios;
-        if (veterinarios && Array.isArray((veterinarios as { users?: Veterinario[] }).users)) {
-            return (veterinarios as { users: Veterinario[] }).users;
-        }
-        return [];
-    }, [veterinarios]);
-
     return (
         <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -48,7 +38,7 @@ export default function VeterinariosScreen() {
 
                 <AppHeader titulo="Veterinarios" isHome={false} />
 
-                {loading && lista.length === 0 ? (
+                {loading && veterinarios.length === 0 ? (
                     <View className="flex-1 items-center justify-center p-6">
                         <ActivityIndicator size="large" color={theme.primary} />
                         <Text
@@ -58,7 +48,7 @@ export default function VeterinariosScreen() {
                             Cargando veterinarios...
                         </Text>
                     </View>
-                ) : error && lista.length === 0 ? (
+                ) : error && veterinarios.length === 0 ? (
                     <View className="flex-1 items-center justify-center p-6">
                         <View
                             className="w-full items-center rounded-3xl border p-6 shadow-lg shadow-black/30 elevation-8"
@@ -103,7 +93,7 @@ export default function VeterinariosScreen() {
                     <FlatList
                         className="flex-1 pt-4"
                         keyboardShouldPersistTaps="handled"
-                        data={lista}
+                        data={veterinarios}
                         keyExtractor={(item) => String(item.id)}
                         renderItem={({ item }) => (
                             <VeterinarioItem

@@ -2,7 +2,8 @@
 import type { Solicitud, SolicitudFormData } from "@/domain/models/Solicitud";
 import { useSolicitudes } from "@/presentation/context/SolicitudesContext";
 import { useSolicitudForm } from "@/presentation/hooks/useSolicitudForm";
-import { View } from "react-native";
+import { type ReactNode, useRef, useState } from "react";
+import { Alert, View } from "react-native";
 import CustomDateInput from "../shared/CustomDateInput";
 import { CustomSelectInput } from "../shared/CustomSelectInput";
 import { CustomTextInput } from "../shared/CustomTextInput";
@@ -13,7 +14,8 @@ interface SolicitudFormProps {
   initialValues?: SolicitudFormData;
   solicitudId?: Solicitud["id"];
   submitLabel: string;
-  onSubmit: (datos: SolicitudFormData) => void;
+  onSubmit: (datos: SolicitudFormData) => Promise<void>;
+  children?: ReactNode;
 }
 
 export function SolicitudForm({
@@ -21,6 +23,7 @@ export function SolicitudForm({
   solicitudId,
   submitLabel,
   onSubmit,
+  children,
 }: SolicitudFormProps) {
   const {
     form,
@@ -33,17 +36,30 @@ export function SolicitudForm({
   } = useSolicitudForm(initialValues);
 
   const { solicitudes } = useSolicitudes();
+  const [guardando, setGuardando] = useState(false);
+  const envioEnCurso = useRef(false);
 
-  const enviar = () => {
+  const enviar = async () => {
+    if (envioEnCurso.current) return;
     const datos = prepararDatos();
     if (!datos) return;
-    onSubmit(datos);
+
+    envioEnCurso.current = true;
+    setGuardando(true);
+    try {
+      await onSubmit(datos);
+    } catch {
+      Alert.alert("No se pudo guardar la cita", "Inténtalo de nuevo.");
+    } finally {
+      envioEnCurso.current = false;
+      setGuardando(false);
+    }
   };
 
   return (
     <View>
       <CustomTextInput
-        label="Nombre completo"
+        label="Nombre del cliente"
         placeholder="Ej. Carlos Pérez"
         value={form.clienteNombre}
         onChangeText={(valor) => actualizarCampo("clienteNombre", valor)}
@@ -55,7 +71,7 @@ export function SolicitudForm({
         placeholder="Número de teléfono"
         value={form.telefono}
         onChangeText={(valor) => actualizarCampo("telefono", valor)}
-        keyboardType="numeric"
+        keyboardType="phone-pad"
         autoCapitalize="none"
         error={errors.telefono}
       />
@@ -144,7 +160,13 @@ export function SolicitudForm({
         error={errors.horaCita}
       />
 
-      <PrimaryButton title={submitLabel} onPress={enviar} />
+      {children}
+
+      <PrimaryButton
+        title={guardando ? "Guardando…" : submitLabel}
+        onPress={enviar}
+        disabled={guardando}
+      />
     </View>
   );
 }

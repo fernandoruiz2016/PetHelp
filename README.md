@@ -2,7 +2,7 @@
 
 Aplicación móvil para organizar las solicitudes de atención de una clínica veterinaria. Permite registrar citas, consultar su información y gestionar su estado. Su estructura se basa en los principios de Clean Architecture, con separación entre dominio, datos y presentación.
 
-Está desarrollado con Expo y React Native. Las solicitudes se gestionan en memoria, sin servidor ni base de datos.
+Está desarrollado con Expo y React Native. Las solicitudes se guardan localmente en SQLite.
 
 ## Funcionalidades
 
@@ -18,7 +18,7 @@ Está desarrollado con Expo y React Native. Las solicitudes se gestionan en memo
 - Expo SDK 57, React Native 0.86 y TypeScript.
 - Expo Router para la navegación.
 - NativeWind y `expo-linear-gradient` para los estilos.
-- Context API y `useReducer` para el CRUD en memoria.
+- SQLite para persistir las citas y Context API con `useReducer` para actualizar las pantallas.
 
 ## Requisitos
 
@@ -63,10 +63,10 @@ En PowerShell, si la política de ejecución bloquea los comandos `npm` o `npx`,
 
 El acceso es de demostración:
 
-| Campo      | Valor    |
-| ---------- | -------- |
-| Usuario    | `admin`  |
-| Contraseña | `123456` |
+| Campo      | Valor                |
+| ---------- | -------------------- |
+| Correo     | `admin@pethelp.test` |
+| Contraseña | `123456`             |
 
 1. Inicia sesión y abre **Todas las citas** desde Inicio o desde la barra inferior.
 2. Usa la búsqueda y los filtros para localizar una cita. Toca una tarjeta para ver su detalle.
@@ -82,7 +82,7 @@ El formulario muestra los errores bajo los campos correspondientes. Las horas oc
 assets/                         Imágenes, logos e iconos
 src/
   app/                          Pantallas y rutas de Expo Router
-  data/                         Solicitudes iniciales de demostración
+  infraestructure/              Base de datos SQLite e integración REST
   domain/
     enums/                      Tipos de servicio
     models/                     Modelo y tipos de Solicitud
@@ -95,7 +95,7 @@ src/
     theme/                      Paletas clara y oscura
 ```
 
-La lista se inicializa con **20 solicitudes de ejemplo** definidas en `src/data/SolicitudesIniciales.ts`. `SolicitudProvider` las carga en memoria y comparte las operaciones de crear, actualizar, buscar y eliminar. El reducer aplica los cambios a la lista en memoria; las pantallas consumen ese contexto. Los cambios se pierden al reiniciar la aplicación.
+`SolicitudProvider` carga las citas desde SQLite. Al crear, actualizar o eliminar una cita, primero guarda el cambio en la base de datos y luego actualiza la lista que usan las pantallas. Puedes cerrar y volver a abrir la app para consultar las citas guardadas.
 
 ## Integrantes del grupo
 

@@ -4,7 +4,8 @@ import { SolicitudDetalle } from "@/presentation/components/solicitudes/Solicitu
 import { useSolicitudes } from "@/presentation/context/SolicitudesContext";
 import { useTheme } from "@/presentation/context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
+import { useRef, useState } from "react";
 import {
   Alert,
   Platform,
@@ -18,14 +19,29 @@ export default function SolicitudDetalleRoute() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { buscar, eliminar } = useSolicitudes();
   const { theme } = useTheme();
+  const navigation = useNavigation();
   const solicitud = buscar(Number(id));
+  const eliminacionEnCurso = useRef(false);
+  const [eliminando, setEliminando] = useState(false);
 
-  const borrarSolicitud = () => {
-    eliminar(Number(id));
-    if (router.canGoBack()) {
-      router.back();
-    } else {
-      router.replace("/solicitudes");
+  const borrarSolicitud = async () => {
+    if (!solicitud || eliminacionEnCurso.current) return;
+    eliminacionEnCurso.current = true;
+    setEliminando(true);
+
+    try {
+      await eliminar(solicitud.id);
+      if (!navigation.isFocused()) return;
+
+      if (router.canGoBack()) router.back();
+      else router.replace("/solicitudes");
+    } catch {
+      if (navigation.isFocused()) {
+        Alert.alert("No se pudo eliminar la cita", "Inténtalo de nuevo.");
+      }
+    } finally {
+      eliminacionEnCurso.current = false;
+      setEliminando(false);
     }
   };
 
@@ -33,13 +49,17 @@ export default function SolicitudDetalleRoute() {
     const mensaje = `¿Eliminar la cita de ${solicitud?.mascotaNombre}? Esta acción no se puede deshacer.`;
 
     if (Platform.OS === "web") {
-      if (globalThis.confirm(mensaje)) borrarSolicitud();
+      if (globalThis.confirm(mensaje)) void borrarSolicitud();
       return;
     }
 
     Alert.alert("Eliminar cita", mensaje, [
       { text: "Cancelar", style: "cancel" },
-      { text: "Eliminar", style: "destructive", onPress: borrarSolicitud },
+      {
+        text: "Eliminar",
+        style: "destructive",
+        onPress: () => void borrarSolicitud(),
+      },
     ]);
   };
 
@@ -70,6 +90,7 @@ export default function SolicitudDetalleRoute() {
               }
               accessibilityRole="button"
               accessibilityLabel="Editar cita"
+              disabled={eliminando}
             >
               <Ionicons
                 name="create-outline"
@@ -87,6 +108,7 @@ export default function SolicitudDetalleRoute() {
               className="h-14 flex-row items-center justify-center gap-3 rounded-xl border"
               style={{ backgroundColor: theme.form, borderColor: theme.error }}
               onPress={confirmarEliminacion}
+              disabled={eliminando}
               accessibilityRole="button"
               accessibilityLabel="Eliminar cita"
             >
@@ -95,7 +117,7 @@ export default function SolicitudDetalleRoute() {
                 className="text-base font-bold"
                 style={{ color: theme.error }}
               >
-                Eliminar cita
+                {eliminando ? "Eliminando…" : "Eliminar cita"}
               </Text>
             </Pressable>
           </View>

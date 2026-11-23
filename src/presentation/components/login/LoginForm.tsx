@@ -9,22 +9,22 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onShowRegister }: LoginFormProps) {
-  const { user, setUser, password, setPassword, errors, handleLogin } =
+  const { email, setEmail, password, setPassword, errors, handleLogin } =
     useLoginForm();
   const { theme } = useTheme();
 
   return (
     <View>
       <CustomTextInput
-        label="Nombre de Usuario"
-        iconName="person-outline"
-        placeholder="usuario"
-        value={user}
-        onChangeText={setUser}
-        keyboardType="default"
+        label="Correo electrónico"
+        iconName="mail-outline"
+        placeholder="correo@ejemplo.com"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
         autoCapitalize="none"
         autoCorrect={false}
-        error={errors.user}
+        error={errors.email}
       />
 
       <CustomTextInput

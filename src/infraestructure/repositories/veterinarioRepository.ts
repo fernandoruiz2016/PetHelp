@@ -35,8 +35,9 @@ function validarBaseUrl() {
 
 export async function listar(): Promise<Veterinario[]> {
     validarBaseUrl();
-    const response = await api.get<Veterinario[]>('/users?limit=8');
-    return response.data;
+    const { data } = await api.get<Veterinario[] | { users: Veterinario[] }>('/users?limit=8');
+    if (Array.isArray(data)) return data;
+    return Array.isArray(data?.users) ? data.users : [];
 }
 
 export const veterinarioRepository: VeterinarioRepository = {

@@ -3,7 +3,7 @@ import { ScreenLayout } from "@/presentation/components/shared/ScreenLayout";
 import { SolicitudForm } from "@/presentation/components/solicitudes/SolicitudForm";
 import { useSolicitudes } from "@/presentation/context/SolicitudesContext";
 import { useTheme } from "@/presentation/context/ThemeContext";
-import { router } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -14,6 +14,7 @@ import {
 export default function SolicitudesRoute() {
   const { theme } = useTheme();
   const { crear } = useSolicitudes();
+  const navigation = useNavigation();
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -34,11 +35,13 @@ export default function SolicitudesRoute() {
             >
               <SolicitudForm
                 submitLabel="Realizar Solicitud"
-                onSubmit={(datos) => {
-                  // El formulario valida; esta pantalla decide guardar y navegar.
-                  crear(datos);
-                  Alert.alert("Registro creado", "La solicitud se ha guardado");
-                  router.back();
+                onSubmit={async (datos) => {
+                  await crear(datos);
+                  if (!navigation.isFocused()) return;
+
+                  if (router.canGoBack()) router.back();
+                  else router.replace("/solicitudes");
+                  Alert.alert("Cita creada", "La solicitud se ha guardado.");
                 }}
               />
             </View>

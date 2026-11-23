@@ -180,6 +180,18 @@ export function SolicitudDetalle({ solicitud }: SolicitudDetalleProps) {
           />
         </View>
         <View className="border-t" style={{ borderColor: theme.border }} />
+        <View className="grow justify-center py-4">
+          <InfoRow
+            icono="medkit-outline"
+            etiqueta="Veterinario"
+            valor={
+              solicitud.veterinarioId === undefined
+                ? "Sin asignar"
+                : `Veterinario #${solicitud.veterinarioId}`
+            }
+          />
+        </View>
+        <View className="border-t" style={{ borderColor: theme.border }} />
         <Text className="pt-3 text-xs" style={{ color: theme.textSecondary }}>
           Registrada:{" "}
           {formatearFecha(fechaRegistro, {
