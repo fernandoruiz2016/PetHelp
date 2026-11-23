@@ -1,11 +1,13 @@
+import { useAuth } from "@/presentation/context/AuthContext";
 import { esCorreoValido } from "@/presentation/utils/esCorreoValido";
-import { router } from "expo-router";
+import { mensajeErrorFirebase } from "@/presentation/utils/mensajeErrorFirebase";
 import { useState } from "react";
-import { Alert } from "react-native";
 
 export const useLoginForm = () => {
+  const { iniciarSesion, ocupado } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorOperacion, setErrorOperacion] = useState<string>();
 
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
     {},
@@ -17,27 +19,24 @@ export const useLoginForm = () => {
     if (!esCorreoValido(email)) {
       e.email = "Ingresa un correo electrónico válido";
     }
-    if (password.length < 6) {
-      e.password = "La contraseña debe tener mínimo 6 caracteres";
+    if (!password) {
+      e.password = "Ingresa tu contraseña";
     }
 
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
+    if (ocupado) return;
+    setErrorOperacion(undefined);
     if (!validar()) return;
 
-    // Cuenta de demostración hasta integrar Firebase Authentication.
-    if (
-      email.trim().toLowerCase() === "admin@pethelp.test" &&
-      password === "123456"
-    ) {
-      router.replace("/home");
-    } else {
-      Alert.alert(
-        "Error de Acceso",
-        "El correo o la contraseña son incorrectos.",
+    try {
+      await iniciarSesion(email.trim(), password);
+    } catch (error) {
+      setErrorOperacion(
+        mensajeErrorFirebase(error, "No se pudo iniciar sesión. Intenta de nuevo."),
       );
     }
   };
@@ -48,6 +47,8 @@ export const useLoginForm = () => {
     password,
     setPassword,
     errors,
+    errorOperacion,
+    ocupado,
     handleLogin,
   };
 };

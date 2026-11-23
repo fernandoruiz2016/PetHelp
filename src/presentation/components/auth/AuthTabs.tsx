@@ -6,6 +6,7 @@ export type AuthTab = "login" | "register";
 interface AuthTabsProps {
   selectedTab: AuthTab;
   onSelect: (tab: AuthTab) => void;
+  disabled?: boolean;
 }
 
 const tabs: { value: AuthTab; label: string }[] = [
@@ -13,7 +14,7 @@ const tabs: { value: AuthTab; label: string }[] = [
   { value: "register", label: "Registrarte" },
 ];
 
-export function AuthTabs({ selectedTab, onSelect }: AuthTabsProps) {
+export function AuthTabs({ selectedTab, onSelect, disabled }: AuthTabsProps) {
   const { theme } = useTheme();
 
   return (
@@ -31,8 +32,9 @@ export function AuthTabs({ selectedTab, onSelect }: AuthTabsProps) {
               selectedTab === value ? theme.accentSoft : "transparent",
           }}
           onPress={() => onSelect(value)}
+          disabled={disabled}
           accessibilityRole="tab"
-          accessibilityState={{ selected: selectedTab === value }}
+          accessibilityState={{ selected: selectedTab === value, disabled }}
           accessibilityLabel={label}
         >
           <Text

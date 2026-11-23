@@ -1,4 +1,5 @@
 import { useTheme } from "@/presentation/context/ThemeContext";
+import { useCerrarSesion } from "@/presentation/hooks/useCerrarSesion";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import {
@@ -23,6 +24,7 @@ export function AppHeader({
   onProfilePress,
 }: SolicitudesHeaderProps) {
   const { theme } = useTheme();
+  const { salir, ocupado } = useCerrarSesion();
 
   return (
     <View
@@ -31,7 +33,7 @@ export function AppHeader({
     >
       {isHome ? (
         <>
-          <View>
+          {onProfilePress && (
             <Pressable
               onPress={onProfilePress}
               accessibilityRole="button"
@@ -44,7 +46,7 @@ export function AppHeader({
                 resizeMode="cover"
               />
             </Pressable>
-          </View>
+          )}
 
           <View className="flex-1 flex-row items-center justify-center">
             <View className="ml-5">
@@ -77,9 +79,11 @@ export function AppHeader({
 
           <TouchableOpacity
             className="h-11 w-11 items-center justify-center"
-            onPress={() => router.replace("/login")}
+            onPress={salir}
+            disabled={ocupado}
             accessibilityRole="button"
             accessibilityLabel="Cerrar sesión"
+            accessibilityState={{ disabled: ocupado }}
           >
             <Ionicons
               name="log-out-outline"

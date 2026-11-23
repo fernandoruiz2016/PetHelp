@@ -9,7 +9,7 @@ interface LoginFormProps {
 }
 
 export function LoginForm({ onShowRegister }: LoginFormProps) {
-  const { email, setEmail, password, setPassword, errors, handleLogin } =
+  const { email, setEmail, password, setPassword, errors, errorOperacion, ocupado, handleLogin } =
     useLoginForm();
   const { theme } = useTheme();
 
@@ -22,6 +22,7 @@ export function LoginForm({ onShowRegister }: LoginFormProps) {
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
+        autoComplete="email"
         autoCapitalize="none"
         autoCorrect={false}
         error={errors.email}
@@ -33,13 +34,19 @@ export function LoginForm({ onShowRegister }: LoginFormProps) {
         placeholder="••••••••"
         value={password}
         onChangeText={setPassword}
+        autoComplete="current-password"
         isPassword={true}
         error={errors.password}
       />
 
-      <PrimaryButton title="Ingresar" onPress={handleLogin} />
+      {errorOperacion && (
+        <Text accessibilityRole="alert" className="mb-3" style={{ color: theme.error }}>
+          {errorOperacion}
+        </Text>
+      )}
+      <PrimaryButton title={ocupado ? "Ingresando…" : "Ingresar"} onPress={handleLogin} disabled={ocupado} />
 
-      <TouchableOpacity className="mt-6 p-2" onPress={onShowRegister}>
+      <TouchableOpacity className="mt-6 p-2" onPress={onShowRegister} disabled={ocupado}>
         <Text className="text-center text-base" style={{ color: theme.text }}>
           ¿No tienes cuenta?{" "}
           <Text className=" font-bold" style={{ color: theme.primary }}>

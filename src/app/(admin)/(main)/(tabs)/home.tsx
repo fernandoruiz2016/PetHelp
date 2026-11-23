@@ -23,7 +23,7 @@ import {
 
 export default function HomeRoute() {
   const navigation = useNavigation<DrawerNavigationProp<{ "(tabs)": undefined }>>(
-    "/(main)",
+    "/(admin)/(main)",
   );
   const { theme } = useTheme();
   const [cargando, setCargando] = useState(true);
@@ -128,7 +128,7 @@ export default function HomeRoute() {
                 <HomeModuleCard
                   title="Veterinarios"
                   iconName="people-outline"
-                  onPress={() => router.push("/veterinarios/veterinarios" as any)}
+                  onPress={() => router.push("/veterinarios/veterinarios")}
                 />
               </View>
             </ScrollView>

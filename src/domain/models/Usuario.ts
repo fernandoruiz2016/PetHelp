@@ -8,3 +8,5 @@ export interface Usuario {
   apellidos?: string;
   telefono?: string;
 }
+
+export type DatosPerfil = Required<Pick<Usuario, "nombre" | "apellidos" | "telefono">>;

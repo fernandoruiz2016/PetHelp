@@ -1,6 +1,7 @@
 import { LoginForm } from "@/presentation/components/login/LoginForm";
 import { LoginHeader } from "@/presentation/components/login/LoginHeader";
 import { RegisterForm } from "@/presentation/components/register/RegisterForm";
+import { useAuth } from "@/presentation/context/AuthContext";
 import { ScreenLayout } from "@/presentation/components/shared/ScreenLayout";
 import { useTheme } from "@/presentation/context/ThemeContext";
 import { useRef, useState } from "react";
@@ -22,9 +23,10 @@ export function AuthScreen({ initialTab = "login" }: AuthScreenProps) {
   const [selectedTab, setSelectedTab] = useState<AuthTab>(initialTab);
   const scrollRef = useRef<ScrollView>(null);
   const { theme } = useTheme();
+  const { ocupado } = useAuth();
 
   const seleccionarTab = (tab: AuthTab) => {
-    if (tab === selectedTab) return;
+    if (ocupado || tab === selectedTab) return;
     Keyboard.dismiss();
     setSelectedTab(tab);
     scrollRef.current?.scrollTo({ y: 0, animated: false });
@@ -60,7 +62,7 @@ export function AuthScreen({ initialTab = "login" }: AuthScreenProps) {
                 className="pt-5 pb-5 px-6 py-6 rounded-[30] shadow-lg shadow-black/50 elevation-8"
                 style={{ backgroundColor: theme.background }}
               >
-                <AuthTabs selectedTab={selectedTab} onSelect={seleccionarTab} />
+                <AuthTabs selectedTab={selectedTab} onSelect={seleccionarTab} disabled={ocupado} />
                 <View
                   style={{ display: selectedTab === "login" ? "flex" : "none" }}
                 >

@@ -6,7 +6,8 @@ Está desarrollado con Expo y React Native. Las solicitudes se guardan localment
 
 ## Funcionalidades
 
-- Inicio de sesión de demostración, prueba y formulario de registro con validaciones.
+- Registro de clientes e inicio de sesión con correo y contraseña mediante Firebase Authentication.
+- Sesiones persistentes y acceso a pantallas según el rol. El cliente tiene su propio inicio y el administrador gestiona la agenda.
 - Inicio con el resumen de las citas del día y accesos al listado y a una nueva cita.
 - Listado con búsqueda por mascota, cliente o código, y filtros por fecha, estado, servicio y prioridad.
 - Creación de citas con datos del cliente y la mascota, servicio, descripción, prioridad, fecha y hora. La prioridad inicial es **Normal** y el estado inicial es **Pendiente**.
@@ -19,6 +20,7 @@ Está desarrollado con Expo y React Native. Las solicitudes se guardan localment
 - Expo Router para la navegación.
 - NativeWind y `expo-linear-gradient` para los estilos.
 - SQLite para persistir las citas y Context API con `useReducer` para actualizar las pantallas.
+- Firebase Authentication para las cuentas y Firestore para perfiles y permisos de administrador.
 
 ## Requisitos
 
@@ -39,6 +41,8 @@ npm install
 También puedes usar `npm ci` para instalar exactamente las versiones registradas en `package-lock.json`.
 
 ## Ejecución
+
+Antes de iniciar la app, completa `.env` con las variables de Firebase que aparecen en `.env.example`.
 
 Para probar la app con Expo Go, inicia el servidor de desarrollo:
 
@@ -61,14 +65,7 @@ En PowerShell, si la política de ejecución bloquea los comandos `npm` o `npx`,
 
 ## Cómo probar el flujo CRUD
 
-El acceso es de demostración:
-
-| Campo      | Valor                |
-| ---------- | -------------------- |
-| Correo     | `admin@pethelp.test` |
-| Contraseña | `123456`             |
-
-1. Inicia sesión y abre **Todas las citas** desde Inicio o desde la barra inferior.
+1. Inicia sesión con una cuenta de administrador y abre **Todas las citas** desde Inicio o desde la barra inferior.
 2. Usa la búsqueda y los filtros para localizar una cita. Toca una tarjeta para ver su detalle.
 3. Pulsa **Nueva cita**, completa el formulario, elige fecha y hora disponibles y guarda. Si no cambias la prioridad, se guarda como **Normal**.
 4. Abre la cita creada y pulsa **Editar cita**. Cambia, por ejemplo, la prioridad, la descripción o el estado a **En atención** o **Finalizado**, y guarda.

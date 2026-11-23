@@ -1,3 +1,4 @@
+import { CamposPerfil } from "@/presentation/components/profile/CamposPerfil";
 import { CustomTextInput } from "@/presentation/components/shared/CustomTextInput";
 import { PrimaryButton } from "@/presentation/components/shared/PrimaryButton";
 import { useTheme } from "@/presentation/context/ThemeContext";
@@ -10,56 +11,24 @@ interface RegisterFormProps {
 
 export function RegisterForm({ onShowLogin }: RegisterFormProps) {
   const {
-    nombre,
-    setNombre,
-    apellidos,
-    setApellidos,
+    perfil,
+    actualizarPerfil,
     email,
     setEmail,
-    phone,
-    setPhone,
     password,
     setPassword,
     confirmar,
     setConfirmar,
     errors,
+    errorOperacion,
+    ocupado,
     handleRegistro,
-  } = useRegisterForm(onShowLogin);
+  } = useRegisterForm();
   const { theme } = useTheme();
 
   return (
     <View>
-      <CustomTextInput
-        label="Nombres"
-        iconName="person-circle-outline"
-        placeholder="Ej. Juan Carlos"
-        value={nombre}
-        onChangeText={setNombre}
-        autoCapitalize="words"
-        error={errors.nombre}
-      />
-
-      <CustomTextInput
-        label="Apellidos"
-        iconName="person-outline"
-        placeholder="Ej. Pérez García"
-        value={apellidos}
-        onChangeText={setApellidos}
-        autoCapitalize="words"
-        error={errors.apellidos}
-      />
-
-      <CustomTextInput
-        label="Teléfono"
-        iconName="call-outline"
-        placeholder="Número de teléfono"
-        value={phone}
-        onChangeText={setPhone}
-        keyboardType="phone-pad"
-        autoCapitalize="none"
-        autoCorrect={false}
-        error={errors.phone}
-      />
+      <CamposPerfil perfil={perfil} errores={errors} onChange={actualizarPerfil} />
 
       <CustomTextInput
         label="Correo Electrónico"
@@ -68,6 +37,7 @@ export function RegisterForm({ onShowLogin }: RegisterFormProps) {
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
+        autoComplete="email"
         autoCapitalize="none"
         autoCorrect={false}
         error={errors.email}
@@ -79,6 +49,7 @@ export function RegisterForm({ onShowLogin }: RegisterFormProps) {
         placeholder="••••••••"
         value={password}
         onChangeText={setPassword}
+        autoComplete="new-password"
         isPassword={true}
         error={errors.password}
       />
@@ -93,9 +64,18 @@ export function RegisterForm({ onShowLogin }: RegisterFormProps) {
         error={errors.confirmar}
       />
 
-      <PrimaryButton title="Completar Registro" onPress={handleRegistro} />
+      {errorOperacion && (
+        <Text accessibilityRole="alert" className="mb-3" style={{ color: theme.error }}>
+          {errorOperacion}
+        </Text>
+      )}
+      <PrimaryButton
+        title={ocupado ? "Creando cuenta…" : "Completar registro"}
+        onPress={handleRegistro}
+        disabled={ocupado}
+      />
 
-      <TouchableOpacity className="mt-8 p-2" onPress={onShowLogin}>
+      <TouchableOpacity className="mt-8 p-2" onPress={onShowLogin} disabled={ocupado}>
         <Text className="text-center text-base" style={{ color: theme.text }}>
           ¿Ya estás registrado?{" "}
           <Text className=" font-bold" style={{ color: theme.primary }}>

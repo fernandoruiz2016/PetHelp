@@ -1,75 +1,60 @@
+import type { DatosPerfil } from "@/domain/models/Usuario";
+import { useAuth } from "@/presentation/context/AuthContext";
 import { esCorreoValido } from "@/presentation/utils/esCorreoValido";
-import { router } from "expo-router";
+import { mensajeErrorFirebase } from "@/presentation/utils/mensajeErrorFirebase";
+import { perfilVacio, prepararPerfil, validarPerfil, type ErroresPerfil } from "@/presentation/utils/perfilForm";
 import { useState } from "react";
-import { Alert } from "react-native";
 
-export const useRegisterForm = (onRegistroCompletado?: () => void) => {
-  const [nombre, setNombre] = useState("");
-  const [apellidos, setApellidos] = useState("");
+export const useRegisterForm = () => {
+  const { registrar, ocupado } = useAuth();
+  const [perfil, setPerfil] = useState(perfilVacio);
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmar, setConfirmar] = useState("");
-  const [errors, setErrors] = useState<{
-    nombre?: string;
-    apellidos?: string;
+  const [errorOperacion, setErrorOperacion] = useState<string>();
+  const [errors, setErrors] = useState<ErroresPerfil & {
     email?: string;
-    phone?: string;
     password?: string;
     confirmar?: string;
   }>({});
 
-  const validar = (): boolean => {
-    const e: typeof errors = {};
+  const actualizarPerfil = (campo: keyof DatosPerfil, valor: string) =>
+    setPerfil((actual) => ({ ...actual, [campo]: valor }));
 
-    if (nombre.trim().length === 0) e.nombre = "Tu nombre es requerido";
-    if (apellidos.trim().length === 0) e.apellidos = "Ingresa tus apellidos";
+  const handleRegistro = async () => {
+    if (ocupado) return;
+    setErrorOperacion(undefined);
+    const datos = prepararPerfil(perfil);
+    const e: typeof errors = validarPerfil(datos);
     if (!esCorreoValido(email)) e.email = "Ingresa un correo electrónico válido";
-    if (phone.trim().length === 0)
-      e.phone = "Tu número de teléfono es requerido";
     if (password.length < 6)
       e.password = "La contraseña requiere mínimo 6 caracteres";
     if (password !== confirmar) e.confirmar = "Las contraseñas no coinciden";
 
     setErrors(e);
-    return Object.keys(e).length === 0;
-  };
+    if (Object.keys(e).length > 0) return;
 
-  const handleRegistro = () => {
-    if (!validar()) return;
-
-    Alert.alert(
-      "Registro de demostración",
-      "Los datos del formulario son válidos.",
-      [
-        {
-          text: "Ir al Login",
-          onPress: () => {
-            if (onRegistroCompletado) {
-              onRegistroCompletado();
-            } else {
-              router.replace("/login");
-            }
-          },
-        },
-      ],
-    );
+    try {
+      await registrar(email.trim(), password, datos);
+    } catch (error) {
+      setErrorOperacion(
+        mensajeErrorFirebase(error, "No se pudo crear la cuenta. Intenta de nuevo."),
+      );
+    }
   };
 
   return {
-    nombre,
-    setNombre,
-    apellidos,
-    setApellidos,
+    perfil,
+    actualizarPerfil,
     email,
     setEmail,
-    phone,
-    setPhone,
     password,
     setPassword,
     confirmar,
     setConfirmar,
     errors,
+    errorOperacion,
+    ocupado,
     handleRegistro,
   };
 };
