@@ -1,10 +1,11 @@
-import { veterinarioRepository } from "@/infraestructure/repositories/veterinarioRepository";
+import { HomeModuleCard } from "@/presentation/components/home/HomeModuleCard";
 import { AppHeader } from "@/presentation/components/shared/AppHeader";
 import { ScreenLayout } from "@/presentation/components/shared/ScreenLayout";
 import { VeterinarioItem } from "@/presentation/components/veterinarios/VeterinarioItem";
 import { useTheme } from "@/presentation/context/ThemeContext";
-import { useVeterinarioApi } from "@/presentation/hooks/useVeterinarioApi";
+import { useVeterinarios } from "@/presentation/context/VeterinariosContext";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import {
     ActivityIndicator,
     FlatList,
@@ -12,18 +13,12 @@ import {
     Platform,
     RefreshControl,
     Text,
-    TouchableOpacity,
-    View
+    View,
 } from "react-native";
 
 export default function VeterinariosScreen() {
     const { theme } = useTheme();
-    const {
-        veterinarios,
-        loading,
-        error,
-        loadVeterinarios,
-    } = useVeterinarioApi(veterinarioRepository);
+    const { veterinarios, cargando, recargar } = useVeterinarios();
 
     return (
         <KeyboardAvoidingView
@@ -35,10 +30,16 @@ export default function VeterinariosScreen() {
                 areaSegura="sinSuperior"
                 conFondo={true}
             >
-
                 <AppHeader titulo="Veterinarios" isHome={false} />
+                <View className="px-4 pt-4 pb-2">
+                    <HomeModuleCard
+                        title="Nuevo veterinario"
+                        iconName="add-circle-outline"
+                        onPress={() => router.push("/veterinarios/formulario")}
+                    />
+                </View>
 
-                {loading && veterinarios.length === 0 ? (
+                {cargando && veterinarios.length === 0 ? (
                     <View className="flex-1 items-center justify-center p-6">
                         <ActivityIndicator size="large" color={theme.primary} />
                         <Text
@@ -47,47 +48,6 @@ export default function VeterinariosScreen() {
                         >
                             Cargando veterinarios...
                         </Text>
-                    </View>
-                ) : error && veterinarios.length === 0 ? (
-                    <View className="flex-1 items-center justify-center p-6">
-                        <View
-                            className="w-full items-center rounded-3xl border p-6 shadow-lg shadow-black/30 elevation-8"
-                            style={{
-                                backgroundColor: theme.form,
-                                borderColor: theme.border,
-                            }}
-                        >
-                            <Ionicons
-                                name="alert-circle-outline"
-                                size={48}
-                                color={theme.error}
-                            />
-                            <Text
-                                className="mt-3 text-center text-lg font-bold"
-                                style={{ color: theme.text }}
-                            >
-                                No se pudo cargar la información
-                            </Text>
-                            <Text
-                                className="mt-1 text-center text-sm"
-                                style={{ color: theme.textSecondary }}
-                            >
-                                {error}
-                            </Text>
-                            <TouchableOpacity
-                                className="mt-5 rounded-xl px-6 py-3"
-                                style={{ backgroundColor: theme.primary }}
-                                onPress={loadVeterinarios}
-                                accessibilityRole="button"
-                            >
-                                <Text
-                                    className="font-bold text-base"
-                                    style={{ color: theme.onPrimary }}
-                                >
-                                    Reintentar
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
                     </View>
                 ) : (
                     <FlatList
@@ -98,6 +58,12 @@ export default function VeterinariosScreen() {
                         renderItem={({ item }) => (
                             <VeterinarioItem
                                 veterinario={item}
+                                onPress={(veterinario) =>
+                                    router.push({
+                                        pathname: "/veterinarios/formulario",
+                                        params: { id: veterinario.id },
+                                    })
+                                }
                             />
                         )}
                         ItemSeparatorComponent={() => <View className="h-3" />}
@@ -109,8 +75,10 @@ export default function VeterinariosScreen() {
                         }}
                         refreshControl={
                             <RefreshControl
-                                refreshing={loading}
-                                onRefresh={loadVeterinarios}
+                                refreshing={cargando}
+                                onRefresh={() => {
+                                    void recargar();
+                                }}
                                 colors={[theme.primary]}
                                 tintColor={theme.primary}
                             />
@@ -126,6 +94,7 @@ export default function VeterinariosScreen() {
                                     className="mt-3 text-center text-base font-medium"
                                     style={{ color: theme.textSecondary }}
                                 >
+                                    Aún no hay veterinarios registrados.
                                 </Text>
                             </View>
                         }
@@ -135,4 +104,3 @@ export default function VeterinariosScreen() {
         </KeyboardAvoidingView>
     );
 }
-

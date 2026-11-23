@@ -3,6 +3,7 @@ import { ScreenLayout } from "@/presentation/components/shared/ScreenLayout";
 import { SolicitudDetalle } from "@/presentation/components/solicitudes/SolicitudDetalle";
 import { useSolicitudes } from "@/presentation/context/SolicitudesContext";
 import { useTheme } from "@/presentation/context/ThemeContext";
+import { useVeterinarios } from "@/presentation/context/VeterinariosContext";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useRef, useState } from "react";
@@ -18,9 +19,16 @@ import {
 export default function SolicitudDetalleRoute() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { buscar, eliminar } = useSolicitudes();
+  const { buscar: buscarVeterinario } = useVeterinarios();
   const { theme } = useTheme();
   const navigation = useNavigation();
   const solicitud = buscar(Number(id));
+  const veterinarioAsignado = solicitud?.veterinarioId
+    ? buscarVeterinario(solicitud.veterinarioId)
+    : undefined;
+  const veterinarioNombre = veterinarioAsignado
+    ? `${veterinarioAsignado.firstName} ${veterinarioAsignado.lastName}`.trim()
+    : undefined;
   const eliminacionEnCurso = useRef(false);
   const [eliminando, setEliminando] = useState(false);
 
@@ -76,7 +84,10 @@ export default function SolicitudDetalleRoute() {
             paddingBottom: 24,
           }}
         >
-          <SolicitudDetalle solicitud={solicitud} />
+          <SolicitudDetalle
+            solicitud={solicitud}
+            veterinarioNombre={veterinarioNombre}
+          />
 
           <View className="mt-6 shrink-0 gap-3">
             <Pressable

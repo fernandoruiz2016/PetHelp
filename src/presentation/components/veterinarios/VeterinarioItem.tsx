@@ -79,7 +79,7 @@ export function VeterinarioItem({
               className="text-right text-xs"
               style={{ color: theme.textMuted }}
             >
-              ID: #{veterinario.id}
+              {veterinario.activo === false ? "Inactivo" : "Activo"}
             </Text>
           </View>
 
@@ -121,6 +121,12 @@ export function VeterinarioItem({
                 </View>
               ) : null}
             </View>
+          </View>
+          <View
+            className="absolute inset-y-0 right-0 justify-center"
+            pointerEvents="none"
+          >
+            <Ionicons name="chevron-forward" size={22} color={theme.primary} />
           </View>
         </View>
       </View>

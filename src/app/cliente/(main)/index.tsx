@@ -8,27 +8,41 @@ import { useAuth } from "@/presentation/context/AuthContext";
 import { useTheme } from "@/presentation/context/ThemeContext";
 import { useCitasCliente } from "@/presentation/hooks/useCitasCliente";
 import { useConsultaCitasCliente } from "@/presentation/hooks/useConsultaCitasCliente";
+import { useFechaActual } from "@/presentation/hooks/useFechaActual";
 import { nombreUsuario } from "@/presentation/utils/nombreUsuario";
 import { router, useNavigation } from "expo-router";
 import type { DrawerNavigationProp } from "expo-router/drawer";
-import { ActivityIndicator, Text, View } from "react-native";
+import { useState } from "react";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 
-function ordenarCitas(citas: Solicitud[]) {
+const filtrosCitas = [
+  { valor: "hoy", etiqueta: "Hoy", mensajeVacio: "No tienes citas para hoy." },
+  { valor: "proximas", etiqueta: "Próximas", mensajeVacio: "Aún no tienes citas próximas." },
+  { valor: "historial", etiqueta: "Historial", mensajeVacio: "Aún no tienes citas en tu historial." },
+] as const;
+
+function agruparCitas(citas: Solicitud[], fechaActual: Date) {
   const ahora = Date.now();
+  const diaActual = fechaActual.toDateString();
+  const hoy: Solicitud[] = [];
   const proximas: Solicitud[] = [];
   const historial: Solicitud[] = [];
 
   // SQLite entrega las citas de la más antigua a la más reciente.
   for (const cita of citas) {
+    const fechaCita = new Date(cita.fechaCita);
+    const esHoy = fechaCita.toDateString() === diaActual;
     const abierta = cita.estado === "PENDIENTE" || cita.estado === "EN_ATENCION";
-    if (abierta && new Date(cita.fechaCita).getTime() >= ahora) {
-      proximas.push(cita);
-    } else {
+
+    if (esHoy) hoy.push(cita);
+    if (!abierta || fechaCita.getTime() < ahora) {
       historial.push(cita);
+    } else if (!esHoy) {
+      proximas.push(cita);
     }
   }
 
-  return proximas.concat(historial.reverse());
+  return { hoy, proximas, historial: historial.reverse() };
 }
 
 export default function ClienteRoute() {
@@ -37,9 +51,13 @@ export default function ClienteRoute() {
   );
   const { sesion } = useAuth();
   const { theme } = useTheme();
+  const fechaActual = useFechaActual();
   const citas = useCitasCliente();
   const { lectura, reintentar } = useConsultaCitasCliente(citas?.listar);
+  const [filtro, setFiltro] = useState<(typeof filtrosCitas)[number]>(filtrosCitas[0]);
   if (sesion.estado !== "lista" || sesion.usuario.rol !== "cliente") return null;
+
+  const citasVisibles = lectura.estado === "lista" ? agruparCitas(lectura.datos, fechaActual)[filtro.valor] : [];
 
   return (
     <HomeScreen
@@ -55,25 +73,51 @@ export default function ClienteRoute() {
         <HomeModuleCard
           title="Reservar cita"
           iconName="add-circle-outline"
-          onPress={() => router.push("/cliente/citas/nueva")}
+          onPress={() => {
+            setFiltro(filtrosCitas[0]);
+            router.push("/cliente/citas/nueva");
+          }}
         />
         <View className="gap-3">
-          <Text className="text-2xl font-extrabold" style={{ color: theme.title }} accessibilityRole="header">
+          <Text className="text-center text-2xl font-extrabold" style={{ color: theme.title }} accessibilityRole="header">
             Tus citas
           </Text>
+          <View className="flex-row flex-wrap justify-center gap-2">
+            {filtrosCitas.map((opcion) => {
+              const seleccionado = filtro.valor === opcion.valor;
+
+              return (
+                <Pressable
+                  key={opcion.valor}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: seleccionado }}
+                  className="min-h-11 items-center justify-center rounded-full px-3.5 py-2"
+                  style={{ backgroundColor: seleccionado ? theme.filterSelectedBackground : theme.filterBackground }}
+                  onPress={() => setFiltro(opcion)}
+                >
+                  <Text
+                    className={seleccionado ? "text-sm font-bold" : "text-sm font-semibold"}
+                    style={{ color: seleccionado ? theme.filterSelectedText : theme.filterText }}
+                  >
+                    {opcion.etiqueta}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
           {lectura.estado === "cargando" && (
             <ActivityIndicator accessibilityLabel="Cargando citas" color={theme.primary} />
           )}
           {lectura.estado === "error" && (
             <>
-              <Text style={{ color: theme.textSecondary }}>No se pudieron cargar tus citas.</Text>
-              <PrimaryButton title="Reintentar" onPress={reintentar} />
+              <Text className="text-center" style={{ color: theme.textSecondary }}>No se pudieron cargar tus citas.</Text>
+              <PrimaryButton className="self-center px-6" title="Reintentar" onPress={reintentar} />
             </>
           )}
-          {lectura.estado === "lista" && (lectura.datos.length === 0 ? (
-            <Text style={{ color: theme.textSecondary }}>Aún no tienes citas.</Text>
+          {lectura.estado === "lista" && (citasVisibles.length === 0 ? (
+            <Text className="text-center" style={{ color: theme.textSecondary }}>{filtro.mensajeVacio}</Text>
           ) : (
-            ordenarCitas(lectura.datos).map((cita) => (
+            citasVisibles.map((cita) => (
               <SolicitudItem
                 key={cita.id}
                 solicitud={cita}

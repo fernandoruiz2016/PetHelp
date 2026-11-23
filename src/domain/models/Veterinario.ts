@@ -1,5 +1,5 @@
 export interface Veterinario {
-  id: number;
+  id: string;
   firstName: string;
   lastName: string;
   email?: string;
@@ -7,3 +7,9 @@ export interface Veterinario {
   image?: string;
   activo?: boolean;
 }
+
+export type DatosVeterinario = Pick<Veterinario, "firstName" | "lastName"> & {
+  email: string;
+  phone: string;
+  activo: boolean;
+};

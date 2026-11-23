@@ -6,7 +6,7 @@ import { HORAS_CITA, HorarioCitaNoDisponible, rangoDiaCita } from '../../domain/
 
 type SolicitudSQLite = Omit<Solicitud, 'clienteId' | 'veterinarioId'> & {
     clienteId: string | null;
-    veterinarioId: number | null;
+    veterinarioId: string | null;
 };
 
 const horarioOcupado = `fechaCita >= $desde AND fechaCita < $hasta AND estado <> 'CANCELADA'`;

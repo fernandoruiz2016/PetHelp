@@ -1,18 +1,16 @@
-import { veterinarioRepository } from "@/infraestructure/repositories/veterinarioRepository";
 import { AppHeader } from "@/presentation/components/shared/AppHeader";
 import { CustomSelectInput } from "@/presentation/components/shared/CustomSelectInput";
 import { ScreenLayout } from "@/presentation/components/shared/ScreenLayout";
 import { SolicitudForm } from "@/presentation/components/solicitudes/SolicitudForm";
 import { useSolicitudes } from "@/presentation/context/SolicitudesContext";
 import { useTheme } from "@/presentation/context/ThemeContext";
-import { useVeterinarioApi } from "@/presentation/hooks/useVeterinarioApi";
+import { useVeterinarios } from "@/presentation/context/VeterinariosContext";
 import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   Text,
   View,
@@ -24,9 +22,12 @@ export default function EditarSolicitudRoute() {
   const { theme } = useTheme();
   const navigation = useNavigation();
   const solicitud = buscar(Number(id));
-  const [asignacion, setAsignacion] = useState<number | null>();
-  const { veterinarios, loading, error, loadVeterinarios } =
-    useVeterinarioApi(veterinarioRepository);
+  const [asignacion, setAsignacion] = useState<string | null>();
+  const {
+    veterinarios,
+    cargando,
+    buscar: buscarVeterinario,
+  } = useVeterinarios();
 
   const veterinarioActual = solicitud?.veterinarioId;
   const veterinarioSeleccionado =
@@ -46,7 +47,9 @@ export default function EditarSolicitudRoute() {
   ) {
     opcionesVeterinarios.push({
       value: String(veterinarioActual),
-      label: `Veterinario #${veterinarioActual}`,
+      label: veterinarioActual.startsWith("legacy-api:")
+        ? `Asignación anterior #${veterinarioActual.slice(11)}`
+        : `Veterinario #${veterinarioActual}`,
     });
   }
 
@@ -75,12 +78,23 @@ export default function EditarSolicitudRoute() {
                   solicitudId={solicitud.id}
                   submitLabel="Actualizar"
                   onSubmit={async (datos) => {
+                    if (asignacion && asignacion !== veterinarioActual) {
+                      const veterinario = buscarVeterinario(asignacion);
+                      if (!veterinario || veterinario.activo === false) {
+                        throw new Error(
+                          "El veterinario ya no está disponible. Selecciona otro.",
+                        );
+                      }
+                    }
                     await actualizar(solicitud.id, datos, asignacion);
                     if (!navigation.isFocused()) return;
 
                     if (router.canGoBack()) router.back();
                     else router.replace("/solicitudes");
-                    Alert.alert("Cita actualizada", "Los cambios se han guardado.");
+                    Alert.alert(
+                      "Cita actualizada",
+                      "Los cambios se han guardado.",
+                    );
                   }}
                 >
                   <CustomSelectInput
@@ -88,24 +102,16 @@ export default function EditarSolicitudRoute() {
                     value={veterinarioSeleccionado?.toString() ?? ""}
                     options={opcionesVeterinarios}
                     onValueChange={(value) =>
-                      setAsignacion(value === "" ? null : Number(value))
+                      setAsignacion(value === "" ? null : value)
                     }
                   />
-                  {loading && (
-                    <Text className="mb-3" style={{ color: theme.textSecondary }}>
+                  {cargando && (
+                    <Text
+                      className="mb-3"
+                      style={{ color: theme.textSecondary }}
+                    >
                       Cargando veterinarios…
                     </Text>
-                  )}
-                  {error && (
-                    <Pressable
-                      className="mb-3 py-2"
-                      accessibilityRole="button"
-                      onPress={loadVeterinarios}
-                    >
-                      <Text style={{ color: theme.primary }}>
-                        No se pudo cargar la lista. Reintentar
-                      </Text>
-                    </Pressable>
                   )}
                 </SolicitudForm>
               </View>

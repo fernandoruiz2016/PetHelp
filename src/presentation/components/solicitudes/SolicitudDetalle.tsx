@@ -13,6 +13,7 @@ import { Text, View } from "react-native";
 interface SolicitudDetalleProps {
   solicitud: Solicitud;
   modo?: "admin" | "cliente";
+  veterinarioNombre?: string;
 }
 
 type IconName = ComponentProps<typeof Ionicons>["name"];
@@ -59,11 +60,16 @@ function InfoRow({
   );
 }
 
-export function SolicitudDetalle({ solicitud, modo = "admin" }: SolicitudDetalleProps) {
+export function SolicitudDetalle({
+  solicitud,
+  modo = "admin",
+  veterinarioNombre,
+}: SolicitudDetalleProps) {
   const { theme } = useTheme();
   const esAdmin = modo === "admin";
   const fechaCita = new Date(solicitud.fechaCita);
   const fechaRegistro = new Date(solicitud.fechaRegistro);
+  const veterinarioId = solicitud.veterinarioId;
 
   return (
     <View style={{ flexGrow: 1, flexShrink: 0 }}>
@@ -181,6 +187,9 @@ export function SolicitudDetalle({ solicitud, modo = "admin" }: SolicitudDetalle
                 etiqueta="Veterinario"
                 valor={solicitud.veterinarioId === undefined
                   ? "Sin asignar"
+                  : veterinarioNombre
+                  ? veterinarioNombre
+                  : veterinarioId?.startsWith("legacy-api:") ? `Asignación anterior #${veterinarioId.slice(11)}`
                   : `Veterinario #${solicitud.veterinarioId}`}
               />
             </View>
