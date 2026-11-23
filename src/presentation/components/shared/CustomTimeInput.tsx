@@ -8,7 +8,7 @@ interface CustomTimeInputProps {
   onChange: (fecha: string) => void;
   horaSeleccionada: boolean;
   citas: Solicitud[];
-  excluirSolicitudId?: string;
+  excluirSolicitudId?: Solicitud["id"];
   error?: string;
 }
 

@@ -1,5 +1,5 @@
 // AÑADIDO: formulario reutilizado para crear y editar, con validación de campos.
-import { SolicitudFormData } from "@/domain/models/Solicitud";
+import type { Solicitud, SolicitudFormData } from "@/domain/models/Solicitud";
 import { useSolicitudes } from "@/presentation/context/SolicitudesContext";
 import { useSolicitudForm } from "@/presentation/hooks/useSolicitudForm";
 import { View } from "react-native";
@@ -11,7 +11,7 @@ import { PrimaryButton } from "../shared/PrimaryButton";
 
 interface SolicitudFormProps {
   initialValues?: SolicitudFormData;
-  solicitudId?: string;
+  solicitudId?: Solicitud["id"];
   submitLabel: string;
   onSubmit: (datos: SolicitudFormData) => void;
 }
@@ -105,7 +105,7 @@ export function SolicitudForm({
         error={errors.prioridad}
       />
 
-      {solicitudId && (
+      {solicitudId !== undefined && (
         <CustomSelectInput
           label="Estado"
           value={form.estado}

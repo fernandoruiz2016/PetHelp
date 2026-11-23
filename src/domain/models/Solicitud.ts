@@ -1,4 +1,6 @@
 import { TipoServicio } from "../enums/TipoServicio";
+import type { Usuario } from "./Usuario";
+import type { Veterinario } from "./Veterinario";
 
 export type EstadoSolicitud =
   "PENDIENTE" | "EN_ATENCION" | "FINALIZADO" | "CANCELADA";
@@ -10,6 +12,8 @@ export type EspecieMascota = "PERRO" | "GATO" | "OTRO";
 export interface Solicitud {
   id: number;
   codigo: string;
+  clienteId?: Usuario["uid"];
+  veterinarioId?: Veterinario["id"];
   clienteNombre: string;
   telefono: string;
   mascotaNombre: string;
@@ -24,5 +28,5 @@ export interface Solicitud {
 
 export type SolicitudFormData = Omit<
   Solicitud,
-  "id" | "codigo" | "fechaRegistro"
+  "id" | "codigo" | "clienteId" | "veterinarioId" | "fechaRegistro"
 >;

@@ -40,10 +40,10 @@ export default function EditarSolicitudRoute() {
               >
                 <SolicitudForm
                   initialValues={solicitud}
-                  solicitudId={id}
+                  solicitudId={solicitud.id}
                   submitLabel="Actualizar"
                   onSubmit={(datos) => {
-                    actualizar(Number(id), datos);
+                    actualizar(solicitud.id, datos);
                     Alert.alert(
                       "Registro actualizado",
                       "Los cambios se han guardado",

@@ -1,8 +1,9 @@
 export interface Veterinario {
-    id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    image: string;
+  id: number;
+  firstName: string;
+  lastName: string;
+  email?: string;
+  phone?: string;
+  image?: string;
+  activo?: boolean;
 }
