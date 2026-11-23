@@ -111,13 +111,41 @@ export function AuthProvider({ children }: PropsWithChildren) {
       }
     });
 
-  const guardarMiPerfil = (perfil: DatosPerfil) =>
-    ejecutar("perfil", async (instancia) => {
-      if (!instancia.currentUser) throw new Error("La sesión ha terminado.");
-      await guardarPerfil(instancia.currentUser.uid, perfil);
+  async function guardarMiPerfil(perfil: DatosPerfil) {
+    if (ocupacion.current) throw new Error("Hay otra operación en curso.");
+
+    await ejecutar("perfil", async (instancia) => {
+      const user = instancia.currentUser;
+      if (
+        !user ||
+        (sesion.estado !== "lista" && sesion.estado !== "perfilPendiente") ||
+        sesion.usuario.rol !== "cliente" ||
+        sesion.usuario.uid !== user.uid
+      ) {
+        throw new Error("No hay una sesión de cliente activa.");
+      }
+
+      await guardarPerfil(user.uid, perfil);
+      if (instancia.currentUser !== user) throw new Error("La sesión ha cambiado.");
+
       setDatosRegistro(undefined);
-      reintentar();
+      if (sesion.estado === "perfilPendiente") {
+        reintentar();
+        return;
+      }
+
+      setVerificacion((actual) => {
+        if (actual?.user !== user || actual.intento !== intento || actual.resultado.estado !== "lista") {
+          return actual;
+        }
+
+        return {
+          ...actual,
+          resultado: { estado: "lista", usuario: { ...actual.resultado.usuario, ...perfil } },
+        };
+      });
     });
+  }
 
   const cerrarSesion = () => ejecutar("salida", async (instancia) => {
     await signOut(instancia);

@@ -2,6 +2,7 @@ import { useAuth } from "@/presentation/context/AuthContext";
 import { useTheme } from "@/presentation/context/ThemeContext";
 import { nombreUsuario } from "@/presentation/utils/nombreUsuario";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
 import {
   DrawerContentScrollView,
   type DrawerContentComponentProps,
@@ -57,6 +58,24 @@ export function ProfileDrawerContent(props: DrawerContentComponentProps) {
               </Text>
               <Text style={{ color: theme.textSecondary }} selectable>{usuario.email}</Text>
             </View>
+          )}
+          {usuario?.rol === "cliente" && (
+            <Pressable
+              accessibilityRole="button"
+              className="min-h-12 w-full flex-row items-center gap-3 rounded-2xl border px-3 py-2"
+              style={({ pressed }) => ({
+                backgroundColor: pressed ? theme.primarySoft : theme.form,
+                borderColor: theme.border,
+              })}
+              onPress={() => {
+                props.navigation.closeDrawer();
+                router.push("/cliente/editar-perfil");
+              }}
+            >
+              <Ionicons name="create-outline" size={22} color={theme.primary} />
+              <Text className="flex-1 text-base font-semibold" style={{ color: theme.text }}>Editar perfil</Text>
+              <Ionicons name="chevron-forward" size={20} color={theme.textSecondary} />
+            </Pressable>
           )}
         </View>
 

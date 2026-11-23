@@ -6,9 +6,10 @@ interface CamposPerfilProps {
   perfil: DatosPerfil;
   errores: ErroresPerfil;
   onChange: (campo: keyof DatosPerfil, valor: string) => void;
+  editable?: boolean;
 }
 
-export function CamposPerfil({ perfil, errores, onChange }: CamposPerfilProps) {
+export function CamposPerfil({ perfil, errores, onChange, editable }: CamposPerfilProps) {
   return (
     <>
       <CustomTextInput
@@ -18,6 +19,7 @@ export function CamposPerfil({ perfil, errores, onChange }: CamposPerfilProps) {
         value={perfil.nombre}
         onChangeText={(valor) => onChange("nombre", valor)}
         autoCapitalize="words"
+        editable={editable}
         maxLength={100}
         error={errores.nombre}
       />
@@ -28,6 +30,7 @@ export function CamposPerfil({ perfil, errores, onChange }: CamposPerfilProps) {
         value={perfil.apellidos}
         onChangeText={(valor) => onChange("apellidos", valor)}
         autoCapitalize="words"
+        editable={editable}
         maxLength={100}
         error={errores.apellidos}
       />
@@ -39,6 +42,7 @@ export function CamposPerfil({ perfil, errores, onChange }: CamposPerfilProps) {
         onChangeText={(valor) => onChange("telefono", valor)}
         keyboardType="phone-pad"
         autoComplete="tel"
+        editable={editable}
         maxLength={30}
         error={errores.telefono}
       />

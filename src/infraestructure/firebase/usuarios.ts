@@ -28,5 +28,5 @@ export async function obtenerUsuario(uid: string, email: string): Promise<Usuari
 }
 
 export async function guardarPerfil(uid: string, { nombre, apellidos, telefono }: DatosPerfil) {
-  await setDoc(doc(baseDeDatos(), "usuarios", uid), { nombre, apellidos, telefono });
+  await setDoc(doc(baseDeDatos(), "usuarios", uid), { nombre, apellidos, telefono }, { merge: true });
 }
