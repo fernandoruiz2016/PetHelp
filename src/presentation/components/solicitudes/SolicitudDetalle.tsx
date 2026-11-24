@@ -96,6 +96,7 @@ export function SolicitudDetalle({
             </Text>
             <Text className="text-xs" style={{ color: theme.textSecondary }}>
               Especie: {especies[solicitud.especieMascota]}
+              {solicitud.razaMascota ? ` · ${solicitud.razaMascota}` : ""}
             </Text>
           </View>
           <View className="items-center gap-1">

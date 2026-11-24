@@ -16,6 +16,7 @@ export async function inicializarBaseDatos(db: SQLiteDatabase) {
                 telefono TEXT NOT NULL,
                 mascotaNombre TEXT NOT NULL,
                 especieMascota TEXT NOT NULL,
+                razaMascota TEXT,
                 tipoServicio TEXT NOT NULL,
                 prioridad TEXT NOT NULL,
                 descripcion TEXT NOT NULL,
@@ -28,6 +29,9 @@ export async function inicializarBaseDatos(db: SQLiteDatabase) {
         const columnas = await txn.getAllAsync<{ name: string; type: string }>('PRAGMA table_info(solicitudes);');
         if (!columnas.some(({ name }) => name === 'clienteId')) {
             await txn.execAsync('ALTER TABLE solicitudes ADD COLUMN clienteId TEXT;');
+        }
+        if (!columnas.some(({ name }) => name === 'razaMascota')) {
+            await txn.execAsync('ALTER TABLE solicitudes ADD COLUMN razaMascota TEXT;');
         }
         if (!columnas.some(({ name }) => name === 'veterinarioId')) {
             await txn.execAsync('ALTER TABLE solicitudes ADD COLUMN veterinarioId TEXT;');

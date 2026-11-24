@@ -2,9 +2,10 @@ import type { Solicitud, SolicitudFormData } from "@/domain/models/Solicitud";
 import { HorarioCitaNoDisponible, rangoDiaCita } from "@/domain/services/horariosCita";
 import { useTheme } from "@/presentation/context/ThemeContext";
 import { useHorasOcupadas } from "@/presentation/hooks/useHorasOcupadas";
+import { useRazasMascota } from "@/presentation/hooks/useRazasMascota";
 import { useSolicitudForm } from "@/presentation/hooks/useSolicitudForm";
 import { type ReactNode, useMemo, useRef, useState } from "react";
-import { Alert, Pressable, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Pressable, Text, View } from "react-native";
 import CustomDateInput from "../shared/CustomDateInput";
 import { CustomSelectInput } from "../shared/CustomSelectInput";
 import { CustomTextInput } from "../shared/CustomTextInput";
@@ -36,6 +37,24 @@ export function SolicitudForm(props: SolicitudFormProps) {
     actualizarHora,
     prepararDatos,
   } = useSolicitudForm(initialValues);
+  const {
+    razas,
+    cargando: cargandoRazas,
+    error: errorRazas,
+    reintentar: reintentarRazas,
+  } = useRazasMascota(form.especieMascota);
+
+  const opcionesRaza = useMemo(() => {
+    const lista = [{ label: "Mestizo / No especificada", value: "" }];
+    for (const raza of razas) {
+      lista.push({ label: raza.nombre, value: raza.nombre });
+    }
+    const actual = form.razaMascota?.trim();
+    if (actual && !lista.some(({ value }) => value === actual)) {
+      lista.push({ label: actual, value: actual });
+    }
+    return lista;
+  }, [form.razaMascota, razas]);
 
   const dia = form.fechaCita ? rangoDiaCita(form.fechaCita) : null;
   const desde = dia?.desde ?? "";
@@ -116,6 +135,41 @@ export function SolicitudForm(props: SolicitudFormProps) {
         onValueChange={(valor) => actualizarCampo("especieMascota", valor)}
         error={errors.especieMascota}
       />
+
+      {form.especieMascota !== "OTRO" && (
+        <View>
+          <CustomSelectInput
+            label="Raza de mascota (opcional)"
+            value={form.razaMascota ?? ""}
+            options={opcionesRaza}
+            onValueChange={(valor) => actualizarCampo("razaMascota", valor)}
+            searchable
+            searchPlaceholder="Buscar raza…"
+          />
+          {cargandoRazas && (
+            <View className="-mt-2 mb-3 flex-row items-center gap-2 pl-1">
+              <ActivityIndicator size="small" color={theme.primary} />
+              <Text className="text-xs" style={{ color: theme.textSecondary }}>
+                Cargando razas…
+              </Text>
+            </View>
+          )}
+          {errorRazas && (
+            <Pressable
+              accessibilityRole="button"
+              className="-mt-2 mb-3 py-1 pl-1"
+              onPress={reintentarRazas}
+            >
+              <Text className="text-xs" style={{ color: theme.error }}>
+                {errorRazas}{" "}
+                <Text className="font-bold underline" style={{ color: theme.primary }}>
+                  Reintentar
+                </Text>
+              </Text>
+            </Pressable>
+          )}
+        </View>
+      )}
 
       <CustomSelectInput
         label="Tipo de servicio"

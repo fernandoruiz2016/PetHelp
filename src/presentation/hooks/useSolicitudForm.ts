@@ -9,6 +9,7 @@ const valoresVacios: SolicitudFormData = {
   telefono: "",
   mascotaNombre: "",
   especieMascota: "PERRO",
+  razaMascota: "",
   tipoServicio: TipoServicio.CONSULTA,
   prioridad: "NORMAL",
   estado: "PENDIENTE",
@@ -26,7 +27,13 @@ export function useSolicitudForm(
   );
 
   const actualizarCampo = (campo: keyof SolicitudFormData, valor: string) => {
-    setForm((actual) => ({ ...actual, [campo]: valor }));
+    setForm((actual) => ({
+      ...actual,
+      [campo]: valor,
+      ...(campo === "especieMascota" && valor !== actual.especieMascota
+        ? { razaMascota: "" }
+        : {}),
+    }));
 
     setErrors((actuales) => ({
       ...actuales,
@@ -72,11 +79,15 @@ export function useSolicitudForm(
   const prepararDatos = (): SolicitudFormData | null => {
     if (!validar()) return null;
 
+    const raza = form.razaMascota?.trim();
+
     return {
       clienteNombre: form.clienteNombre.trim(),
       telefono: form.telefono.trim(),
       mascotaNombre: form.mascotaNombre.trim(),
       especieMascota: form.especieMascota,
+      razaMascota:
+        form.especieMascota !== "OTRO" && raza ? raza : undefined,
       tipoServicio: form.tipoServicio,
       prioridad: form.prioridad,
       descripcion: form.descripcion.trim(),

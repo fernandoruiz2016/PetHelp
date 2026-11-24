@@ -4,15 +4,21 @@ import type { SolicitudRepository } from '../../domain/repositories/SolicitudRep
 import { generarCodigoCita } from '../../domain/services/generarCodigoCita';
 import { HORAS_CITA, HorarioCitaNoDisponible, rangoDiaCita } from '../../domain/services/horariosCita';
 
-type SolicitudSQLite = Omit<Solicitud, 'clienteId' | 'veterinarioId'> & {
+type SolicitudSQLite = Omit<Solicitud, 'clienteId' | 'veterinarioId' | 'razaMascota'> & {
     clienteId: string | null;
     veterinarioId: string | null;
+    razaMascota: string | null;
 };
 
 const horarioOcupado = `fechaCita >= $desde AND fechaCita < $hasta AND estado <> 'CANCELADA'`;
 
-function convertirSolicitud({ clienteId, veterinarioId, ...datos }: SolicitudSQLite): Solicitud {
-    return { ...datos, clienteId: clienteId ?? undefined, veterinarioId: veterinarioId ?? undefined };
+function convertirSolicitud({ clienteId, veterinarioId, razaMascota, ...datos }: SolicitudSQLite): Solicitud {
+    return {
+        ...datos,
+        clienteId: clienteId ?? undefined,
+        veterinarioId: veterinarioId ?? undefined,
+        razaMascota: razaMascota ?? undefined,
+    };
 }
 
 export function createSolicitudRepository(db: SQLiteDatabase): SolicitudRepository {
@@ -27,12 +33,12 @@ export function createSolicitudRepository(db: SQLiteDatabase): SolicitudReposito
             `
             INSERT INTO solicitudes (
                 codigo, clienteId, clienteNombre, telefono, mascotaNombre,
-                especieMascota, tipoServicio, prioridad, descripcion, estado,
+                especieMascota, razaMascota, tipoServicio, prioridad, descripcion, estado,
                 fechaCita, fechaRegistro
             )
             SELECT
                 $codigo, $clienteId, $clienteNombre, $telefono, $mascotaNombre,
-                $especieMascota, $tipoServicio, $prioridad, $descripcion,
+                $especieMascota, $razaMascota, $tipoServicio, $prioridad, $descripcion,
                 'PENDIENTE', $fechaCita, $fechaRegistro
             WHERE $desde IS NULL OR NOT EXISTS (
                 SELECT 1 FROM solicitudes WHERE ${horarioOcupado}
@@ -46,6 +52,7 @@ export function createSolicitudRepository(db: SQLiteDatabase): SolicitudReposito
                 $telefono: dto.telefono,
                 $mascotaNombre: dto.mascotaNombre,
                 $especieMascota: dto.especieMascota,
+                $razaMascota: dto.razaMascota ?? null,
                 $tipoServicio: dto.tipoServicio,
                 $prioridad: dto.prioridad,
                 $descripcion: dto.descripcion,
@@ -141,6 +148,7 @@ export function createSolicitudRepository(db: SQLiteDatabase): SolicitudReposito
                     telefono = ?,
                     mascotaNombre = ?,
                     especieMascota = ?,
+                    razaMascota = ?,
                     tipoServicio = ?,
                     prioridad = ?,
                     descripcion = ?,
@@ -155,6 +163,7 @@ export function createSolicitudRepository(db: SQLiteDatabase): SolicitudReposito
                     datos.telefono,
                     datos.mascotaNombre,
                     datos.especieMascota,
+                    datos.razaMascota ?? null,
                     datos.tipoServicio,
                     datos.prioridad,
                     datos.descripcion,

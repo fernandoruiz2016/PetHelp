@@ -18,6 +18,7 @@ export interface Solicitud {
   telefono: string;
   mascotaNombre: string;
   especieMascota: EspecieMascota;
+  razaMascota?: string;
   tipoServicio: TipoServicio;
   prioridad: PrioridadSolicitud;
   descripcion: string;
