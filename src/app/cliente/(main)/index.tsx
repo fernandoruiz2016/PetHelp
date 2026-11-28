@@ -3,12 +3,14 @@ import { HomeModuleCard } from "@/presentation/components/home/HomeModuleCard";
 import { HomeScreen } from "@/presentation/components/home/HomeScreen";
 import { HomeWelcome } from "@/presentation/components/home/HomeWelcome";
 import { PrimaryButton } from "@/presentation/components/shared/PrimaryButton";
+import { SyncStatusBanner } from "@/presentation/components/shared/SyncStatusBanner";
 import { SolicitudItem } from "@/presentation/components/solicitudes/SolicitudItem";
 import { useAuth } from "@/presentation/context/AuthContext";
 import { useTheme } from "@/presentation/context/ThemeContext";
 import { useCitasCliente } from "@/presentation/hooks/useCitasCliente";
 import { useConsultaCitasCliente } from "@/presentation/hooks/useConsultaCitasCliente";
 import { useFechaActual } from "@/presentation/hooks/useFechaActual";
+import { useSincronizacionAutomatica } from "@/presentation/hooks/useSincronizacionAutomatica";
 import { nombreUsuario } from "@/presentation/utils/nombreUsuario";
 import { router, useNavigation } from "expo-router";
 import type { DrawerNavigationProp } from "expo-router/drawer";
@@ -54,10 +56,12 @@ export default function ClienteRoute() {
   const fechaActual = useFechaActual();
   const citas = useCitasCliente();
   const { lectura, reintentar } = useConsultaCitasCliente(citas?.listar);
+  const { conectado } = useSincronizacionAutomatica(reintentar, Boolean(citas));
   const [filtro, setFiltro] = useState<(typeof filtrosCitas)[number]>(filtrosCitas[0]);
   if (sesion.estado !== "lista" || sesion.usuario.rol !== "cliente") return null;
 
   const citasVisibles = lectura.estado === "lista" ? agruparCitas(lectura.datos, fechaActual)[filtro.valor] : [];
+  const pendientes = lectura.estado === "lista" ? lectura.datos.filter((item) => !item.sincronizado).length : 0;
 
   return (
     <HomeScreen
@@ -68,6 +72,11 @@ export default function ClienteRoute() {
       <HomeWelcome
         mensaje="¡Nos alegra que estés aquí!"
         descripcion="Aquí podrás reservar y consultar tus citas"
+      />
+      <SyncStatusBanner
+        conectado={conectado}
+        pendientes={pendientes}
+        onSincronizar={reintentar}
       />
       <View className="mt-5 gap-6">
         <HomeModuleCard

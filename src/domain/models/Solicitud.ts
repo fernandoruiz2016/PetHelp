@@ -25,9 +25,10 @@ export interface Solicitud {
   estado: EstadoSolicitud;
   fechaCita: string;
   fechaRegistro: string;
+  sincronizado?: boolean;
 }
 
 export type SolicitudFormData = Omit<
   Solicitud,
-  "id" | "codigo" | "clienteId" | "veterinarioId" | "fechaRegistro"
+  "id" | "codigo" | "clienteId" | "veterinarioId" | "fechaRegistro" | "sincronizado"
 >;

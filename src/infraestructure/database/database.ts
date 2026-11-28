@@ -22,20 +22,23 @@ export async function inicializarBaseDatos(db: SQLiteDatabase) {
                 descripcion TEXT NOT NULL,
                 estado TEXT NOT NULL DEFAULT 'PENDIENTE',
                 fechaCita TEXT NOT NULL,
-                fechaRegistro TEXT NOT NULL
+                fechaRegistro TEXT NOT NULL,
+                sincronizado INTEGER NOT NULL DEFAULT 0,
+                eliminado INTEGER NOT NULL DEFAULT 0,
+                updatedAt TEXT NOT NULL DEFAULT ''
             );
         `);
 
-        const columnas = await txn.getAllAsync<{ name: string; type: string }>('PRAGMA table_info(solicitudes);');
-        if (!columnas.some(({ name }) => name === 'clienteId')) {
+        const columnasSolicitudes = await txn.getAllAsync<{ name: string; type: string }>('PRAGMA table_info(solicitudes);');
+        if (!columnasSolicitudes.some(({ name }) => name === 'clienteId')) {
             await txn.execAsync('ALTER TABLE solicitudes ADD COLUMN clienteId TEXT;');
         }
-        if (!columnas.some(({ name }) => name === 'razaMascota')) {
+        if (!columnasSolicitudes.some(({ name }) => name === 'razaMascota')) {
             await txn.execAsync('ALTER TABLE solicitudes ADD COLUMN razaMascota TEXT;');
         }
-        if (!columnas.some(({ name }) => name === 'veterinarioId')) {
+        if (!columnasSolicitudes.some(({ name }) => name === 'veterinarioId')) {
             await txn.execAsync('ALTER TABLE solicitudes ADD COLUMN veterinarioId TEXT;');
-        } else if (columnas.find(({ name }) => name === 'veterinarioId')?.type.toUpperCase() !== 'TEXT') {
+        } else if (columnasSolicitudes.find(({ name }) => name === 'veterinarioId')?.type.toUpperCase() !== 'TEXT') {
             await txn.execAsync(`
                 ALTER TABLE solicitudes RENAME COLUMN veterinarioId TO veterinarioIdAnterior;
                 ALTER TABLE solicitudes ADD COLUMN veterinarioId TEXT;
@@ -44,6 +47,17 @@ export async function inicializarBaseDatos(db: SQLiteDatabase) {
                 ALTER TABLE solicitudes DROP COLUMN veterinarioIdAnterior;
             `);
         }
+        if (!columnasSolicitudes.some(({ name }) => name === 'sincronizado')) {
+            await txn.execAsync('ALTER TABLE solicitudes ADD COLUMN sincronizado INTEGER NOT NULL DEFAULT 0;');
+        }
+        if (!columnasSolicitudes.some(({ name }) => name === 'eliminado')) {
+            await txn.execAsync('ALTER TABLE solicitudes ADD COLUMN eliminado INTEGER NOT NULL DEFAULT 0;');
+        }
+        if (!columnasSolicitudes.some(({ name }) => name === 'updatedAt')) {
+            await txn.execAsync("ALTER TABLE solicitudes ADD COLUMN updatedAt TEXT NOT NULL DEFAULT '';");
+            await txn.execAsync("UPDATE solicitudes SET updatedAt = fechaRegistro WHERE updatedAt = '';");
+        }
+
         await txn.execAsync(`
             CREATE TABLE IF NOT EXISTS veterinarios (
                 id TEXT PRIMARY KEY,
@@ -53,14 +67,31 @@ export async function inicializarBaseDatos(db: SQLiteDatabase) {
                 phone TEXT NOT NULL DEFAULT '',
                 image TEXT,
                 activo INTEGER NOT NULL DEFAULT 1,
-                fechaRegistro TEXT NOT NULL
+                fechaRegistro TEXT NOT NULL,
+                sincronizado INTEGER NOT NULL DEFAULT 0,
+                eliminado INTEGER NOT NULL DEFAULT 0,
+                updatedAt TEXT NOT NULL DEFAULT ''
             );
         `);
+
+        const columnasVeterinarios = await txn.getAllAsync<{ name: string; type: string }>('PRAGMA table_info(veterinarios);');
+        if (!columnasVeterinarios.some(({ name }) => name === 'sincronizado')) {
+            await txn.execAsync('ALTER TABLE veterinarios ADD COLUMN sincronizado INTEGER NOT NULL DEFAULT 0;');
+        }
+        if (!columnasVeterinarios.some(({ name }) => name === 'eliminado')) {
+            await txn.execAsync('ALTER TABLE veterinarios ADD COLUMN eliminado INTEGER NOT NULL DEFAULT 0;');
+        }
+        if (!columnasVeterinarios.some(({ name }) => name === 'updatedAt')) {
+            await txn.execAsync("ALTER TABLE veterinarios ADD COLUMN updatedAt TEXT NOT NULL DEFAULT '';");
+            await txn.execAsync("UPDATE veterinarios SET updatedAt = fechaRegistro WHERE updatedAt = '';");
+        }
 
         await txn.execAsync(`
             CREATE INDEX IF NOT EXISTS idx_solicitudes_cliente_fecha ON solicitudes (clienteId, fechaCita);
             CREATE INDEX IF NOT EXISTS idx_solicitudes_fecha ON solicitudes (fechaCita);
             CREATE INDEX IF NOT EXISTS idx_solicitudes_veterinario ON solicitudes (veterinarioId);
+            CREATE INDEX IF NOT EXISTS idx_solicitudes_sync ON solicitudes (sincronizado, eliminado);
+            CREATE INDEX IF NOT EXISTS idx_veterinarios_sync ON veterinarios (sincronizado, eliminado);
         `);
     });
 }

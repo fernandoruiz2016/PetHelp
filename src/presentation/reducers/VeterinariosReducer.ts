@@ -44,6 +44,7 @@ export function veterinariosReducer(
                 email: datos.email.trim(),
                 phone: datos.phone.trim(),
                 activo: datos.activo,
+                sincronizado: false,
               }
             : veterinario,
         ),

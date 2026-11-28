@@ -31,6 +31,7 @@ export function solicitudesReducer(
                 veterinarioId === undefined
                   ? solicitud.veterinarioId
                   : veterinarioId ?? undefined,
+              sincronizado: false,
             }
           : solicitud,
       );

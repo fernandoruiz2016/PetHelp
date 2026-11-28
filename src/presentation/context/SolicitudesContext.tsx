@@ -1,21 +1,31 @@
 import type { Solicitud, SolicitudFormData } from "@/domain/models/Solicitud";
 import { generarCodigoCita } from "@/domain/services/generarCodigoCita";
+import { sincronizarSolicitudes } from "@/infraestructure/firebase/sincronizacionFirestore";
 import { createSolicitudRepository } from "@/infraestructure/repositories/solicitudRepository";
+import { useAuth } from "@/presentation/context/AuthContext";
+import { useSincronizacionAutomatica } from "@/presentation/hooks/useSincronizacionAutomatica";
 import { useSQLiteContext } from "expo-sqlite";
 import {
   createContext,
   PropsWithChildren,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
   useReducer,
   useRef,
+  useState,
 } from "react";
 import { solicitudesReducer } from "../reducers/SolicitudesReducer";
 
 interface SolicitudesContextValue {
   solicitudes: Solicitud[];
-  crear: (data: SolicitudFormData, clienteId?: Solicitud["clienteId"]) => Promise<void>;
+  sincronizando: boolean;
+  conectado: boolean;
+  crear: (
+    data: SolicitudFormData,
+    clienteId?: Solicitud["clienteId"],
+  ) => Promise<void>;
   actualizar: (
     id: number,
     datos: SolicitudFormData,
@@ -23,6 +33,7 @@ interface SolicitudesContextValue {
   ) => Promise<void>;
   eliminar: (id: number) => Promise<void>;
   buscar: (id: number) => Solicitud | undefined;
+  sincronizar: () => Promise<void>;
 }
 
 const SolicitudesContext = createContext<SolicitudesContextValue | undefined>(
@@ -31,15 +42,54 @@ const SolicitudesContext = createContext<SolicitudesContextValue | undefined>(
 
 export function SolicitudProvider({ children }: PropsWithChildren) {
   const db = useSQLiteContext();
+  const { sesion } = useAuth();
+  const usuario = sesion.estado === "lista" ? sesion.usuario : undefined;
 
-  const repository = useMemo(
-    () => createSolicitudRepository(db),
-    [db],
-  );
+  const repository = useMemo(() => createSolicitudRepository(db), [db]);
 
   const [solicitudes, dispatch] = useReducer(solicitudesReducer, []);
+  const [sincronizando, setSincronizando] = useState(false);
   const codigosReservados = useRef(new Set<string>());
   const cargaInicial = useRef<Promise<void> | undefined>(undefined);
+  const montado = useRef(true);
+
+  useEffect(() => {
+    montado.current = true;
+    return () => {
+      montado.current = false;
+    };
+  }, []);
+
+  const recargarDesdeSQLite = useCallback(async () => {
+    const data = await repository.listar();
+    if (!montado.current) return;
+    codigosReservados.current = new Set(data.map((item) => item.codigo));
+    dispatch({
+      type: "CARGAR_SOLICITUDES_INICIALES",
+      payload: data,
+    });
+  }, [repository]);
+
+  const sincronizar = useCallback(async () => {
+    if (!usuario) return;
+    setSincronizando(true);
+    try {
+      await sincronizarSolicitudes(db, {
+        rol: usuario.rol,
+        uid: usuario.uid,
+      });
+      await recargarDesdeSQLite();
+    } catch (error) {
+      console.warn("Error al sincronizar solicitudes:", error);
+    } finally {
+      if (montado.current) setSincronizando(false);
+    }
+  }, [db, recargarDesdeSQLite, usuario]);
+
+  const { conectado } = useSincronizacionAutomatica(
+    sincronizar,
+    Boolean(usuario),
+  );
 
   useEffect(() => {
     let vigente = true;
@@ -49,14 +99,15 @@ export function SolicitudProvider({ children }: PropsWithChildren) {
         const data = await repository.listar();
         if (!vigente) return;
 
-        data.forEach((solicitud) =>
-          codigosReservados.current.add(solicitud.codigo),
-        );
-
+        codigosReservados.current = new Set(data.map((item) => item.codigo));
         dispatch({
           type: "CARGAR_SOLICITUDES_INICIALES",
           payload: data,
         });
+
+        if (usuario) {
+          void sincronizar();
+        }
       } catch (error) {
         console.error("Error al cargar solicitudes:", error);
       }
@@ -66,7 +117,7 @@ export function SolicitudProvider({ children }: PropsWithChildren) {
     return () => {
       vigente = false;
     };
-  }, [repository]);
+  }, [repository, sincronizar, usuario]);
 
   const crear = async (
     datos: SolicitudFormData,
@@ -83,6 +134,8 @@ export function SolicitudProvider({ children }: PropsWithChildren) {
         type: "CREAR",
         payload: nuevaSolicitud,
       });
+
+      void sincronizar();
     } catch (error) {
       codigosReservados.current.delete(codigo);
       console.error("Error al crear solicitud:", error);
@@ -102,6 +155,8 @@ export function SolicitudProvider({ children }: PropsWithChildren) {
         type: "ACTUALIZAR",
         payload: { id, datos, veterinarioId },
       });
+
+      void sincronizar();
     } catch (error) {
       console.error("Error al actualizar solicitud:", error);
       throw error;
@@ -116,6 +171,8 @@ export function SolicitudProvider({ children }: PropsWithChildren) {
         type: "ELIMINAR",
         payload: id,
       });
+
+      void sincronizar();
     } catch (error) {
       console.error("Error al eliminar solicitud:", error);
       throw error;
@@ -127,7 +184,16 @@ export function SolicitudProvider({ children }: PropsWithChildren) {
 
   return (
     <SolicitudesContext.Provider
-      value={{ solicitudes, crear, actualizar, eliminar, buscar }}
+      value={{
+        solicitudes,
+        sincronizando,
+        conectado,
+        crear,
+        actualizar,
+        eliminar,
+        buscar,
+        sincronizar,
+      }}
     >
       {children}
     </SolicitudesContext.Provider>

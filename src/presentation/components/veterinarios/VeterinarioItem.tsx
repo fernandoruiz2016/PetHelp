@@ -75,12 +75,25 @@ export function VeterinarioItem({
             >
               {nombreCompleto}
             </Text>
-            <Text
-              className="text-right text-xs"
-              style={{ color: theme.textMuted }}
-            >
-              {veterinario.activo === false ? "Inactivo" : "Activo"}
-            </Text>
+            <View className="flex-row items-center gap-1">
+              <Ionicons
+                name={
+                  veterinario.sincronizado
+                    ? "cloud-done-outline"
+                    : "cloud-offline-outline"
+                }
+                size={14}
+                color={
+                  veterinario.sincronizado ? theme.success : theme.textMuted
+                }
+              />
+              <Text
+                className="text-right text-xs"
+                style={{ color: theme.textMuted }}
+              >
+                {veterinario.activo === false ? "Inactivo" : "Activo"}
+              </Text>
+            </View>
           </View>
 
           <View className="gap-2 pr-8">

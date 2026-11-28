@@ -4,20 +4,32 @@ import type { SolicitudRepository } from '../../domain/repositories/SolicitudRep
 import { generarCodigoCita } from '../../domain/services/generarCodigoCita';
 import { HORAS_CITA, HorarioCitaNoDisponible, rangoDiaCita } from '../../domain/services/horariosCita';
 
-type SolicitudSQLite = Omit<Solicitud, 'clienteId' | 'veterinarioId' | 'razaMascota'> & {
+type SolicitudSQLite = Omit<Solicitud, 'clienteId' | 'veterinarioId' | 'razaMascota' | 'sincronizado'> & {
     clienteId: string | null;
     veterinarioId: string | null;
     razaMascota: string | null;
+    sincronizado: number;
+    eliminado: number;
+    updatedAt: string;
 };
 
-const horarioOcupado = `fechaCita >= $desde AND fechaCita < $hasta AND estado <> 'CANCELADA'`;
+const horarioOcupado = `fechaCita >= $desde AND fechaCita < $hasta AND estado <> 'CANCELADA' AND eliminado = 0`;
 
-function convertirSolicitud({ clienteId, veterinarioId, razaMascota, ...datos }: SolicitudSQLite): Solicitud {
+function convertirSolicitud({
+    clienteId,
+    veterinarioId,
+    razaMascota,
+    sincronizado,
+    eliminado: _eliminado,
+    updatedAt: _updatedAt,
+    ...datos
+}: SolicitudSQLite): Solicitud {
     return {
         ...datos,
         clienteId: clienteId ?? undefined,
         veterinarioId: veterinarioId ?? undefined,
         razaMascota: razaMascota ?? undefined,
+        sincronizado: sincronizado === 1,
     };
 }
 
@@ -34,12 +46,12 @@ export function createSolicitudRepository(db: SQLiteDatabase): SolicitudReposito
             INSERT INTO solicitudes (
                 codigo, clienteId, clienteNombre, telefono, mascotaNombre,
                 especieMascota, razaMascota, tipoServicio, prioridad, descripcion, estado,
-                fechaCita, fechaRegistro
+                fechaCita, fechaRegistro, sincronizado, eliminado, updatedAt
             )
             SELECT
                 $codigo, $clienteId, $clienteNombre, $telefono, $mascotaNombre,
                 $especieMascota, $razaMascota, $tipoServicio, $prioridad, $descripcion,
-                'PENDIENTE', $fechaCita, $fechaRegistro
+                'PENDIENTE', $fechaCita, $fechaRegistro, 0, 0, $fechaRegistro
             WHERE $desde IS NULL OR NOT EXISTS (
                 SELECT 1 FROM solicitudes WHERE ${horarioOcupado}
             )
@@ -71,18 +83,21 @@ export function createSolicitudRepository(db: SQLiteDatabase): SolicitudReposito
             clienteId,
             estado: 'PENDIENTE',
             fechaRegistro,
+            sincronizado: false,
         };
     }
 
     return {
         async listar() {
-            const filas = await db.getAllAsync<SolicitudSQLite>('SELECT * FROM solicitudes ORDER BY id DESC;');
+            const filas = await db.getAllAsync<SolicitudSQLite>(
+                'SELECT * FROM solicitudes WHERE eliminado = 0 ORDER BY id DESC;',
+            );
             return filas.map(convertirSolicitud);
         },
 
         async listarPorCliente(clienteId) {
             const filas = await db.getAllAsync<SolicitudSQLite>(
-                'SELECT * FROM solicitudes WHERE clienteId = ? ORDER BY fechaCita ASC, id ASC;',
+                'SELECT * FROM solicitudes WHERE clienteId = ? AND eliminado = 0 ORDER BY fechaCita ASC, id ASC;',
                 [clienteId],
             );
             return filas.map(convertirSolicitud);
@@ -90,7 +105,7 @@ export function createSolicitudRepository(db: SQLiteDatabase): SolicitudReposito
 
         async buscarPorCliente(id, clienteId) {
             const fila = await db.getFirstAsync<SolicitudSQLite>(
-                'SELECT * FROM solicitudes WHERE id = ? AND clienteId = ?;',
+                'SELECT * FROM solicitudes WHERE id = ? AND clienteId = ? AND eliminado = 0;',
                 [id, clienteId],
             );
             return fila ? convertirSolicitud(fila) : null;
@@ -124,7 +139,6 @@ export function createSolicitudRepository(db: SQLiteDatabase): SolicitudReposito
             const desde = fecha.toISOString();
             const hasta = new Date(fecha.getTime() + 60 * 60 * 1000).toISOString();
             const datos: SolicitudFormData = { ...dto, fechaCita: desde, prioridad: 'NORMAL', estado: 'PENDIENTE' };
-            // El INSERT comprueba el horario y guarda la reserva en una sola operación.
             for (let intento = 0; intento < 5; intento++) {
                 const reserva = await insertar(datos, generarCodigoCita([]), clienteId, { desde, hasta });
                 if (reserva) return reserva;
@@ -139,6 +153,7 @@ export function createSolicitudRepository(db: SQLiteDatabase): SolicitudReposito
         },
 
         async actualizar(id, datos, veterinarioId) {
+            const updatedAt = new Date().toISOString();
             const resultado = await db.runAsync(
                 `
                 UPDATE solicitudes
@@ -153,8 +168,10 @@ export function createSolicitudRepository(db: SQLiteDatabase): SolicitudReposito
                     prioridad = ?,
                     descripcion = ?,
                     estado = ?,
-                    fechaCita = ?
-                WHERE id = ?;
+                    fechaCita = ?,
+                    sincronizado = 0,
+                    updatedAt = ?
+                WHERE id = ? AND eliminado = 0;
                 `,
                 [
                     veterinarioId !== undefined,
@@ -169,6 +186,7 @@ export function createSolicitudRepository(db: SQLiteDatabase): SolicitudReposito
                     datos.descripcion,
                     datos.estado,
                     datos.fechaCita,
+                    updatedAt,
                     id,
                 ],
             );
@@ -176,15 +194,22 @@ export function createSolicitudRepository(db: SQLiteDatabase): SolicitudReposito
         },
 
         async eliminar(id) {
-            const resultado = await db.runAsync(
-                `
-                DELETE FROM solicitudes
-                WHERE id=?;
-                `,
-                [id],
-            );
-            if (resultado.changes === 0) throw new Error('La cita ya no existe.');
-        }
-    }
+            await db.withExclusiveTransactionAsync(async (txn) => {
+                const fila = await txn.getFirstAsync<{ sincronizado: number }>(
+                    'SELECT sincronizado FROM solicitudes WHERE id = ? AND eliminado = 0;',
+                    [id],
+                );
+                if (!fila) throw new Error('La cita ya no existe.');
 
+                if (fila.sincronizado === 0) {
+                    await txn.runAsync('DELETE FROM solicitudes WHERE id = ?;', [id]);
+                } else {
+                    await txn.runAsync(
+                        'UPDATE solicitudes SET eliminado = 1, sincronizado = 0, updatedAt = ? WHERE id = ?;',
+                        [new Date().toISOString(), id],
+                    );
+                }
+            });
+        },
+    };
 }

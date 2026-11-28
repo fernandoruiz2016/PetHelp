@@ -2,12 +2,14 @@ import type { Solicitud } from "@/domain/models/Solicitud";
 import { useTheme } from "@/presentation/context/ThemeContext";
 import { router } from "expo-router";
 import { useMemo } from "react";
-import { FlatList, Keyboard, Text, View } from "react-native";
+import { FlatList, Keyboard, RefreshControl, Text, View } from "react-native";
 import { SolicitudItem } from "../solicitudes/SolicitudItem";
 
 interface SolicitudesListProps {
   solicitudes: Solicitud[];
   mensajeVacio?: string;
+  refreshing?: boolean;
+  onRefresh?: () => void;
 }
 
 const ordenPrioridad: Record<Solicitud["prioridad"], number> = {
@@ -26,6 +28,8 @@ const ordenEstado: Record<Solicitud["estado"], number> = {
 export function SolicitudesList({
   solicitudes,
   mensajeVacio = "No hay solicitudes.",
+  refreshing = false,
+  onRefresh,
 }: SolicitudesListProps) {
   const { theme } = useTheme();
   const solicitudesOrdenadas = useMemo(
@@ -63,6 +67,16 @@ export function SolicitudesList({
         paddingHorizontal: 16,
         paddingVertical: 16,
       }}
+      refreshControl={
+        onRefresh ? (
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[theme.primary]}
+            tintColor={theme.primary}
+          />
+        ) : undefined
+      }
       ListEmptyComponent={
         <Text className="text-center" style={{ color: theme.textSecondary }}>
           {mensajeVacio}

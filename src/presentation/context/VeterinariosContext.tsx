@@ -1,5 +1,7 @@
 import type { DatosVeterinario, Veterinario } from "@/domain/models/Veterinario";
+import { sincronizarVeterinarios } from "@/infraestructure/firebase/sincronizacionFirestore";
 import { createVeterinarioRepository } from "@/infraestructure/repositories/veterinarioRepository";
+import { useSincronizacionAutomatica } from "@/presentation/hooks/useSincronizacionAutomatica";
 import { useSQLiteContext } from "expo-sqlite";
 import {
   createContext,
@@ -9,6 +11,7 @@ import {
   useEffect,
   useMemo,
   useReducer,
+  useRef,
   useState,
 } from "react";
 import { veterinariosReducer } from "../reducers/VeterinariosReducer";
@@ -16,6 +19,8 @@ import { veterinariosReducer } from "../reducers/VeterinariosReducer";
 interface VeterinariosContextValue {
   veterinarios: Veterinario[];
   cargando: boolean;
+  sincronizando: boolean;
+  conectado: boolean;
   crear: (datos: DatosVeterinario) => Promise<Veterinario>;
   actualizar: (id: string, datos: DatosVeterinario) => Promise<void>;
   eliminar: (id: string) => Promise<void>;
@@ -33,22 +38,47 @@ export function VeterinariosProvider({ children }: PropsWithChildren) {
 
   const [veterinarios, dispatch] = useReducer(veterinariosReducer, []);
   const [cargando, setCargando] = useState(true);
+  const [sincronizando, setSincronizando] = useState(false);
+  const montado = useRef(true);
+
+  useEffect(() => {
+    montado.current = true;
+    return () => {
+      montado.current = false;
+    };
+  }, []);
+
+  const cargarDesdeSQLite = useCallback(async () => {
+    const data = await repository.listar();
+    if (!montado.current) return;
+    dispatch({
+      type: "CARGAR_VETERINARIOS_INICIALES",
+      payload: data,
+    });
+  }, [repository]);
+
+  const sincronizar = useCallback(async () => {
+    setSincronizando(true);
+    try {
+      await sincronizarVeterinarios(db);
+      await cargarDesdeSQLite();
+    } catch (error) {
+      console.warn("Error al sincronizar veterinarios:", error);
+    } finally {
+      if (montado.current) setSincronizando(false);
+    }
+  }, [cargarDesdeSQLite, db]);
+
+  const { conectado } = useSincronizacionAutomatica(sincronizar);
 
   const recargar = useCallback(async () => {
     setCargando(true);
     try {
-      const data = await repository.listar();
-      dispatch({
-        type: "CARGAR_VETERINARIOS_INICIALES",
-        payload: data,
-      });
-    } catch (error) {
-      console.error("Error al cargar veterinarios:", error);
-      throw error;
+      await sincronizar();
     } finally {
-      setCargando(false);
+      if (montado.current) setCargando(false);
     }
-  }, [repository]);
+  }, [sincronizar]);
 
   useEffect(() => {
     let vigente = true;
@@ -62,6 +92,7 @@ export function VeterinariosProvider({ children }: PropsWithChildren) {
           type: "CARGAR_VETERINARIOS_INICIALES",
           payload: data,
         });
+        void sincronizar();
       } catch (error) {
         console.error("Error al cargar veterinarios:", error);
       } finally {
@@ -73,7 +104,7 @@ export function VeterinariosProvider({ children }: PropsWithChildren) {
     return () => {
       vigente = false;
     };
-  }, [repository]);
+  }, [repository, sincronizar]);
 
   const crear = useCallback(
     async (datos: DatosVeterinario) => {
@@ -83,13 +114,14 @@ export function VeterinariosProvider({ children }: PropsWithChildren) {
           type: "CREAR",
           payload: nuevo,
         });
+        void sincronizar();
         return nuevo;
       } catch (error) {
         console.error("Error al crear veterinario:", error);
         throw error;
       }
     },
-    [repository],
+    [repository, sincronizar],
   );
 
   const actualizar = useCallback(
@@ -100,12 +132,13 @@ export function VeterinariosProvider({ children }: PropsWithChildren) {
           type: "ACTUALIZAR",
           payload: { id, datos },
         });
+        void sincronizar();
       } catch (error) {
         console.error("Error al actualizar veterinario:", error);
         throw error;
       }
     },
-    [repository],
+    [repository, sincronizar],
   );
 
   const eliminar = useCallback(
@@ -116,12 +149,13 @@ export function VeterinariosProvider({ children }: PropsWithChildren) {
           type: "ELIMINAR",
           payload: id,
         });
+        void sincronizar();
       } catch (error) {
         console.error("Error al eliminar veterinario:", error);
         throw error;
       }
     },
-    [repository],
+    [repository, sincronizar],
   );
 
   const buscar = useCallback(
@@ -134,6 +168,8 @@ export function VeterinariosProvider({ children }: PropsWithChildren) {
       value={{
         veterinarios,
         cargando,
+        sincronizando,
+        conectado,
         crear,
         actualizar,
         eliminar,

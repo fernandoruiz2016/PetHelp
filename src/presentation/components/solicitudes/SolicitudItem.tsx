@@ -61,12 +61,25 @@ export function SolicitudItem({
             >
               {solicitud.mascotaNombre}
             </Text>
-            <Text
-              className="text-right text-xs"
-              style={{ color: theme.textMuted }}
-            >
-              Código: {solicitud.codigo}
-            </Text>
+            <View className="flex-row items-center gap-1">
+              <Ionicons
+                name={
+                  solicitud.sincronizado
+                    ? "cloud-done-outline"
+                    : "cloud-offline-outline"
+                }
+                size={14}
+                color={
+                  solicitud.sincronizado ? theme.success : theme.textMuted
+                }
+              />
+              <Text
+                className="text-right text-xs"
+                style={{ color: theme.textMuted }}
+              >
+                Código: {solicitud.codigo}
+              </Text>
+            </View>
           </View>
 
           <View className="gap-2 pr-8">

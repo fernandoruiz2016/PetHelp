@@ -6,6 +6,7 @@ export interface Veterinario {
   phone?: string;
   image?: string;
   activo?: boolean;
+  sincronizado?: boolean;
 }
 
 export type DatosVeterinario = Pick<Veterinario, "firstName" | "lastName"> & {

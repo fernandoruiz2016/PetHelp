@@ -8,6 +8,7 @@ import {
 } from "@/presentation/components/shared/SolicitudFilters";
 import { SolicitudSearch } from "@/presentation/components/shared/SolicitudSearch";
 import { SolicitudesList } from "@/presentation/components/shared/SolicitudesList";
+import { SyncStatusBanner } from "@/presentation/components/shared/SyncStatusBanner";
 import { useSolicitudes } from "@/presentation/context/SolicitudesContext";
 import { esFiltroResumenCitas, estadosDeInicio } from "@/presentation/navigation/agenda";
 import { router, useLocalSearchParams } from "expo-router";
@@ -50,7 +51,8 @@ const normalizarBusqueda = (texto: string) =>
     .toLowerCase();
 
 export default function SolicitudesRoute() {
-  const { solicitudes } = useSolicitudes();
+  const { solicitudes, sincronizando, conectado, sincronizar } = useSolicitudes();
+  const pendientes = solicitudes.filter((item) => !item.sincronizado).length;
   const { filtro, estado, fecha, servicio, prioridad } = useLocalSearchParams<{
     filtro?: string;
     estado?: string;
@@ -144,6 +146,15 @@ export default function SolicitudesRoute() {
       >
         <AppHeader titulo={titulo} nombre="Martín" isHome={false} />
 
+        <SyncStatusBanner
+          conectado={conectado}
+          sincronizando={sincronizando}
+          pendientes={pendientes}
+          onSincronizar={() => {
+            void sincronizar();
+          }}
+        />
+
         <SolicitudSearch value={busqueda} onChangeText={setBusqueda} />
         <SolicitudFilters
           value={filtros}
@@ -153,6 +164,10 @@ export default function SolicitudesRoute() {
 
         <SolicitudesList
           solicitudes={solicitudesFiltradas}
+          refreshing={sincronizando}
+          onRefresh={() => {
+            void sincronizar();
+          }}
           mensajeVacio={
             termino
               ? `No hay citas que coincidan con “${busqueda.trim()}”${hayFiltros ? " con los filtros actuales" : ""}.`

@@ -1,6 +1,7 @@
 import { HomeModuleCard } from "@/presentation/components/home/HomeModuleCard";
 import { AppHeader } from "@/presentation/components/shared/AppHeader";
 import { ScreenLayout } from "@/presentation/components/shared/ScreenLayout";
+import { SyncStatusBanner } from "@/presentation/components/shared/SyncStatusBanner";
 import { VeterinarioItem } from "@/presentation/components/veterinarios/VeterinarioItem";
 import { useTheme } from "@/presentation/context/ThemeContext";
 import { useVeterinarios } from "@/presentation/context/VeterinariosContext";
@@ -18,7 +19,8 @@ import {
 
 export default function VeterinariosScreen() {
     const { theme } = useTheme();
-    const { veterinarios, cargando, recargar } = useVeterinarios();
+    const { veterinarios, cargando, sincronizando, conectado, recargar } = useVeterinarios();
+    const pendientes = veterinarios.filter((item) => !item.sincronizado).length;
 
     return (
         <KeyboardAvoidingView
@@ -31,6 +33,14 @@ export default function VeterinariosScreen() {
                 conFondo={true}
             >
                 <AppHeader titulo="Veterinarios" isHome={false} />
+                <SyncStatusBanner
+                    conectado={conectado}
+                    sincronizando={sincronizando}
+                    pendientes={pendientes}
+                    onSincronizar={() => {
+                        void recargar();
+                    }}
+                />
                 <View className="px-4 pt-4 pb-2">
                     <HomeModuleCard
                         title="Nuevo veterinario"
